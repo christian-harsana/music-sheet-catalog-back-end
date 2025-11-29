@@ -7,6 +7,9 @@ const app: Express = express();
 // Enable CORS - NOTE: Put BEFORE routes
 app.use(corsMiddleware);
 
+// This is required to parse JSON bodies
+app.use(express.json());
+
 // Routes
 app.use('/api', routes);
 
