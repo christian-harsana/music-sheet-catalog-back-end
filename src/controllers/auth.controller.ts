@@ -121,6 +121,7 @@ export const login = async (req: Request, res: Response) => {
             data: { 
                 userId: user.id, 
                 email: user.email,
+                name: user.name,
                 token: token
             }
         });
