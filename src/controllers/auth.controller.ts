@@ -110,7 +110,7 @@ export const login = async (req: Request, res: Response) => {
             },
             config.jwt.secret,
             {
-                expiresIn: config.jwt.expiresIn as number
+                expiresIn: Number(config.jwt.expiresIn)
             }
         );
 
