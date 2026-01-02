@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, index } from "drizzle-orm/pg-core";
 
 export const sheet = pgTable('sheet', {
     id: serial('id').primaryKey(),
@@ -6,4 +6,7 @@ export const sheet = pgTable('sheet', {
     sourceId: integer('source_id').notNull(),
     levelId: integer('level_id').notNull(),
     genreId: integer('genre_id').notNull(),
-});
+    userId: integer('user_id').notNull()
+}, (table) => [
+    index('sheet_user_id_idx').on(table.userId)
+]);
