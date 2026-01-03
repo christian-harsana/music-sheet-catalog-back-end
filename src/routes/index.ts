@@ -3,6 +3,7 @@ import healthRoutes from './health.routes';
 import authRoutes from './auth.routes';
 import profileRoutes from './profile.routes';
 import genreRoutes from './genre.routes';
+import levelRoutes from './level.routes';
 
 const router = Router();
 
@@ -10,5 +11,6 @@ router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/profile', profileRoutes);
 router.use('/genre', genreRoutes);
+router.use('/level', levelRoutes);
 
 export default router; 
