@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import e, { Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
-import { source } from '../models/source.schema';
+import { sheet } from '../models/sheet.schema';
 
-export const addSource = async (req: Request, res: Response) => {
+export const addSheet = async (req: Request, res: Response) => {
  
     // Verify authenticated user
     if (!req.user) {
@@ -23,43 +23,32 @@ export const addSource = async (req: Request, res: Response) => {
     }
 
     // Get data from the body
-    const { title, author, format } = req.body;
+    const { title, sourceId, levelId, genreId } = req.body;
 
     // Validate input
     if (!title) {
         return res.status(400).json({
             status: 'error',
-            message: 'Source title is required'
+            message: 'Sheet title is required'
         });
     }
 
     try {
 
-        // Validate - Check if submitted source exists
-        const existingSource = await db.query.source.findFirst({
-            where: eq(source.title, title)
-        });
-
-        if (existingSource) {
-            return res.status(409).json({
-                status: 'error',
-                message: 'source title already exists'
-            });
-        }
-
-        // Save Source
-        const newSource = await db.insert(source).values({
+        // Save Sheet
+        const newSheet = await db.insert(sheet).values({
             title: title?.trim(),
-            author: author?.trim(),
-            format: format?.trim(),
+            sourceId: sourceId,
+            levelId: levelId,
+            genreId: genreId,
             userId: userId
         }).returning();
 
         // Return Success
         return res.status(201).json({
             status: 'success',
-            message: 'New source added successfully',
-            data: newSource[0]
+            message: 'New sheet added successfully',
+            data: newSheet[0]
         });
 
     }
@@ -76,7 +65,7 @@ export const addSource = async (req: Request, res: Response) => {
 };
 
 
-export const getSource = async (req: Request, res: Response) => {
+export const getSheet = async (req: Request, res: Response) => {
 
     // Verify authenticated user
     if (!req.user) {
@@ -95,16 +84,16 @@ export const getSource = async (req: Request, res: Response) => {
         });
     }
 
-    // Get all sources
+    // Get all sheets
     try {
-        const sources = await db.query.source.findMany({
-            where: eq(source.userId, userId),
-            orderBy: asc(source.title)
+        const sheets = await db.query.sheet.findMany({
+            where: eq(sheet.userId, userId),
+            orderBy: asc(sheet.title)
         });
 
         return res.status(200).json({
             status: 'success',
-            data: sources
+            data: sheets
         });
     }
 
@@ -119,7 +108,7 @@ export const getSource = async (req: Request, res: Response) => {
 };
 
 
-export const updateSource = async (req: Request, res: Response) => {
+export const updateSheet = async (req: Request, res: Response) => {
     
     // Verify authenticated user
     if (!req.user) {
@@ -135,17 +124,17 @@ export const updateSource = async (req: Request, res: Response) => {
         return res.status(400).json({
             status: 'error',
             message: 'Invalid User Id'
-        });
+        })
     }
 
     // Get parameter and input and validate inputs
     const { id } = req.params;
-    const { title, author, format } = req.body;
+    const { title, sourceId, levelId, genreId } = req.body;
 
     if (!id) {
         return res.status(400).json({
             status: 'error',
-            message: 'Source Id is required'
+            message: 'Sheet Id is required'
         });
     }
 
@@ -158,29 +147,30 @@ export const updateSource = async (req: Request, res: Response) => {
 
     try {
         // Update the data
-        const updatedSource = await db.update(source)
+        const updatedSheet = await db.update(sheet)
             .set({ 
                 title: title.trim(),
-                author: author?.trim(),
-                format: format?.trim() 
+                sourceId: sourceId,
+                levelId: levelId,
+                genreId : genreId
             })
-            .where(and (
-                eq(source.id, parseInt(id)),
-                eq(source.userId, userId)
+            .where(and(
+                eq(sheet.id, parseInt(id)),
+                eq(sheet.userId, userId)
             ))
             .returning();
 
-        if (!updatedSource || updatedSource.length === 0) {
+        if (!updatedSheet || updatedSheet.length === 0) {
             return res.status(404).json({
                 status: 'error',
-                message: 'Source not found'
+                message: 'Sheet not found'
             });
         }
 
         return res.status(200).json({
             status: 'success',
             message: 'Update is successful',
-            data: updatedSource[0]
+            data: updatedSheet[0]
         });
     }
     catch (error: unknown) {
@@ -195,7 +185,7 @@ export const updateSource = async (req: Request, res: Response) => {
 };
 
 
-export const deleteSource = async (req: Request, res: Response) => {
+export const deleteSheet = async (req: Request, res: Response) => {
 
     // Verify authenticated user
     if (!req.user) {
@@ -211,7 +201,7 @@ export const deleteSource = async (req: Request, res: Response) => {
         return res.status(400).json({
             status: 'error',
             message: 'Invalid User Id'
-        });
+        })
     }
 
     // Get parameter and validate
@@ -220,29 +210,30 @@ export const deleteSource = async (req: Request, res: Response) => {
     if (!id) {
         return res.status(400).json({
             status: 'error',
-            message: 'Source id is required'
+            message: 'Sheet Id is required'
         })
     }
 
     // Delete
     try {
-        const deletedSource = await db.delete(source)
+
+        const deletedSheet = await db.delete(sheet)
             .where(and (
-                eq(source.id, parseInt(id)),
-                eq(source.userId, userId)
+                eq(sheet.id, parseInt(id)),
+                eq(sheet.userId, userId)
             ))
             .returning();
 
-        if (!deletedSource || deletedSource.length === 0) {
+        if (!deletedSheet || deletedSheet.length === 0) {
             return res.status(400).json({
                 status: 'error',
-                message: 'Source not found.'
+                message: 'Sheet not found.'
             });
         }
 
         return res.status(200).json({
             status: 'success',
-            message: 'Source successfully deleted'
+            message: 'Sheet successfully deleted'
         });
 
     }
