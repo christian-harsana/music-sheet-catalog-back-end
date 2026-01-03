@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { eq } from 'drizzle-orm';
+import { eq, asc } from 'drizzle-orm';
 import { db } from '../config/db';
 import { genre } from '../models/genre.schema';
 
@@ -76,7 +76,9 @@ export const getGenre = async (req: Request, res: Response) => {
 
     // Get all genres
     try {
-        const genres = await db.query.genre.findMany();
+        const genres = await db.query.genre.findMany({
+            orderBy: asc(genre.id)
+        });
 
         return res.status(200).json({
             status: 'success',

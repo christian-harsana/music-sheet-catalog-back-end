@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { eq, asc } from 'drizzle-orm';
 import { db } from '../config/db';
-import { level } from '../models/level.schema';
+import { source } from '../models/source.schema';
 
-export const addLevel = async (req: Request, res: Response) => {
+export const addSource = async (req: Request, res: Response) => {
  
     // Verify authenticated user
     if (!req.user) {
@@ -13,42 +13,53 @@ export const addLevel = async (req: Request, res: Response) => {
         });
     }
 
-    // Get data from the body
-    const { name, description } = req.body;
+    const userId = parseInt(req.user.userId);
 
-    // Validate input
-    if (!name) {
+    if (isNaN(userId)) {
         return res.status(400).json({
             status: 'error',
-            message: 'Level name is required'
+            message: 'Invalid User Id'
+        });
+    }
+
+    // Get data from the body
+    const { title, author, format } = req.body;
+
+    // Validate input
+    if (!title) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Source title is required'
         });
     }
 
     try {
 
-        // Validate - Check if submitted level exists
-        const existingLevel = await db.query.genre.findFirst({
-            where: eq(level.name, name)
+        // Validate - Check if submitted source exists
+        const existingSource = await db.query.source.findFirst({
+            where: eq(source.title, title)
         });
 
-        if (existingLevel) {
+        if (existingSource) {
             return res.status(409).json({
                 status: 'error',
-                message: 'level name already exists'
+                message: 'source title already exists'
             });
         }
 
-        // Save Level
-        const newLevel = await db.insert(level).values({
-            name: name?.trim(),
-            description: description?.trim()
+        // Save Source
+        const newSource = await db.insert(source).values({
+            title: title?.trim(),
+            author: author?.trim(),
+            format: format?.trim(),
+            userId: parseInt(req.user.userId)
         }).returning();
 
         // Return Success
         return res.status(201).json({
             status: 'success',
-            message: 'New level added successfully',
-            data: newLevel[0]
+            message: 'New source added successfully',
+            data: newSource[0]
         });
 
     }
@@ -65,7 +76,7 @@ export const addLevel = async (req: Request, res: Response) => {
 };
 
 
-export const getLevel = async (req: Request, res: Response) => {
+export const getSource = async (req: Request, res: Response) => {
 
     // Verify authenticated user
     if (!req.user) {
@@ -75,15 +86,16 @@ export const getLevel = async (req: Request, res: Response) => {
         });
     }
 
-    // Get all levels
+    // Get all sources
     try {
-        const levels = await db.query.level.findMany({
-            orderBy: asc(level.id)
+        const sources = await db.query.source.findMany({
+            where: eq(source.userId, parseInt(req.user.userId)),
+            orderBy: asc(source.title)
         });
 
         return res.status(200).json({
             status: 'success',
-            data: levels
+            data: sources
         });
     }
 
@@ -98,7 +110,7 @@ export const getLevel = async (req: Request, res: Response) => {
 };
 
 
-export const updateLevel = async (req: Request, res: Response) => {
+export const updateSource = async (req: Request, res: Response) => {
     
     // Verify authenticated user
     if (!req.user) {
@@ -110,43 +122,44 @@ export const updateLevel = async (req: Request, res: Response) => {
 
     // Get parameter and input and validate inputs
     const { id } = req.params;
-    const { name, description } = req.body;
+    const { title, author, format } = req.body;
 
     if (!id) {
         return res.status(400).json({
             status: 'error',
-            message: 'Level Id is required'
+            message: 'Sourcec Id is required'
         });
     }
 
-    if (!name || name.trim() === "") {
+    if (!title || title.trim() === "") {
         return res.status(400).json({
             status: 'error',
-            message: 'Name is required'
+            message: 'Title is required'
         });
     }
 
     try {
         // Update the data
-        const updatedLevel = await db.update(level)
+        const updatedSource = await db.update(source)
             .set({ 
-                name: name.trim(),
-                description: description?.trim() 
+                title: title.trim(),
+                author: author?.trim(),
+                format: format?.trim() 
             })
-            .where(eq(level.id, parseInt(id)))
+            .where(eq(source.id, parseInt(id)))
             .returning();
 
-        if (!updatedLevel || updatedLevel.length === 0) {
+        if (!updatedSource || updatedSource.length === 0) {
             return res.status(404).json({
                 status: 'error',
-                message: 'Level not found'
+                message: 'Source not found'
             });
         }
 
         return res.status(200).json({
             status: 'success',
             message: 'Update is successful',
-            data: updatedLevel[0]
+            data: updatedSource[0]
         });
     }
     catch (error: unknown) {
@@ -161,7 +174,7 @@ export const updateLevel = async (req: Request, res: Response) => {
 };
 
 
-export const deleteLevel = async (req: Request, res: Response) => {
+export const deleteSource = async (req: Request, res: Response) => {
 
     // Verify authenticated user
     if (!req.user) {
@@ -177,27 +190,27 @@ export const deleteLevel = async (req: Request, res: Response) => {
     if (!id) {
         return res.status(400).json({
             status: 'error',
-            message: 'Level id is required'
+            message: 'Source id is required'
         })
     }
 
     // Delete
     try {
 
-        const deletedLevel = await db.delete(level)
-            .where(eq(level.id, parseInt(id)))
+        const deletedSource = await db.delete(source)
+            .where(eq(source.id, parseInt(id)))
             .returning();
 
-        if (!deletedLevel || deletedLevel.length === 0) {
+        if (!deletedSource || deletedSource.length === 0) {
             return res.status(400).json({
                 status: 'error',
-                message: 'Level not found.'
+                message: 'Source not found.'
             });
         }
 
         return res.status(200).json({
             status: 'success',
-            message: 'Level successfully deleted'
+            message: 'Source successfully deleted'
         });
 
     }
