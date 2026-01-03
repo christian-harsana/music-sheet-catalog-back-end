@@ -47,7 +47,7 @@ export const signUp = async (req: Request, res: Response) => {
         }).returning();
 
 
-        // Return Success or Error
+        // Return Success
         return res.status(201).json({ 
             status: 'success', 
             message: 'User registered successfully' 

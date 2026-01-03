@@ -6,9 +6,9 @@ import { appUser } from "../models/app-user.schema";
 export const profile = async (req: Request, res: Response) => {
     
     if (!req.user) {
-        return res.status(400).json({ 
+        return res.status(401).json({ 
             status: 'error',
-            message: 'User reference is not available' 
+            message: 'Unauthenticated user' 
         });
     }
 
