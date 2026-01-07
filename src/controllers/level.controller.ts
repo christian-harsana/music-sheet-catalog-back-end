@@ -104,7 +104,7 @@ export const updateLevel = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({
             status: 'error',
-            message: 'Unathenticated user'
+            message: 'Unauthenticateduser'
         });
     }
 
@@ -167,7 +167,7 @@ export const deleteLevel = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({
             status: 'error',
-            message: 'Unathenticated user'
+            message: 'Unauthenticateduser'
         });
     }
 

@@ -143,8 +143,6 @@ export const login = async (req: Request, res: Response) => {
 // VERIFY
 export const verify = async(req: Request, res: Response) => {
 
-    console.log('verify token');
-
     try {
 
         const token = req.header('Authorization')?.replace('Bearer ', '');

@@ -30,7 +30,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
                 error: 'Access denied. No token provided.'
             });
         }
-
+        
         const decoded = jwt.verify(token, config.jwt.secret) as JwtUserPayload;
 
         // Attach req.user

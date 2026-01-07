@@ -103,7 +103,7 @@ export const updateGenre = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({
             status: 'error',
-            message: 'Unathenticated user'
+            message: 'Unauthenticated user'
         });
     }
 
@@ -163,7 +163,7 @@ export const deleteGenre = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({
             status: 'error',
-            message: 'Unathenticated user'
+            message: 'Unauthenticateduser'
         });
     }
 
