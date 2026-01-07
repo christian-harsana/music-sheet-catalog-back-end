@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { db } from '../config/db';
 import { appUser } from '../models/app-user.schema';
@@ -138,3 +138,67 @@ export const login = async (req: Request, res: Response) => {
         })
     }
 };
+
+
+// VERIFY
+export const verify = async(req: Request, res: Response) => {
+
+    console.log('verify token');
+
+    try {
+
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+
+        if (!token) {
+            return res.status(401).json({
+                error: 'Access denied. No token provided.'
+            });
+        }
+
+        const decoded = jwt.verify(token, config.jwt.secret) as JwtPayload;
+       
+        // Update the user
+        const  user = await db.query.appUser.findFirst({
+            where: eq(appUser.id, parseInt(decoded.userId))
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                error: 'User not found'
+            });
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Verification successful',
+            data: { 
+                userId: user.id, 
+                email: user.email,
+                name: user.name
+            }
+        })
+    }
+    catch(error) {
+
+        if (error instanceof Error) {
+
+            // Handle specific JWT errors
+            if (error.name === 'JsonWebTokenError') {
+                return res.status(401).json({ 
+                    error: 'Invalid token.' 
+                });
+            }
+                
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ 
+                    error: 'Token expired.' 
+                });
+            }
+        }
+
+        res.status(400).json({
+            error: 'Token verification failed'
+        });
+    }
+
+}
