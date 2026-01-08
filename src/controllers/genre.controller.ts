@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { genre } from '../models/genre.schema';
 
@@ -10,6 +10,15 @@ export const addGenre = async (req: Request, res: Response) => {
         return res.status(401).json({
             status: 'error',
             message: 'Unauthenticated user'
+        });
+    }
+
+    const userId = parseInt(req.user.userId);
+
+    if (isNaN(userId)) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid User Id'
         });
     }
 
@@ -28,7 +37,10 @@ export const addGenre = async (req: Request, res: Response) => {
 
         // Validate - Check if submitted genre exists
         const existingGenre = await db.query.genre.findFirst({
-            where: eq(genre.name, name)
+            where: and(
+                eq(genre.name, name),
+                eq(genre.userId, userId)
+            )
         });
 
         if (existingGenre) {
@@ -40,7 +52,8 @@ export const addGenre = async (req: Request, res: Response) => {
 
         // Save Genre
         const newGenre = await db.insert(genre).values({
-            name: name?.trim()
+            name: name?.trim(),
+            userId: userId
         }).returning();
 
         // Return Success
@@ -74,9 +87,19 @@ export const getGenre = async (req: Request, res: Response) => {
         });
     }
 
+    const userId = parseInt(req.user.userId);
+
+    if (isNaN(userId)) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid User Id'
+        });
+    }
+
     // Get all genres
     try {
         const genres = await db.query.genre.findMany({
+            where: eq(genre.userId, userId),
             orderBy: asc(genre.id)
         });
 
@@ -107,6 +130,15 @@ export const updateGenre = async (req: Request, res: Response) => {
         });
     }
 
+    const userId = parseInt(req.user.userId);
+
+    if (isNaN(userId)) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid User Id'
+        })
+    }
+
     // Get parameter and input and validate inputs
     const { id } = req.params;
     const { name } = req.body;
@@ -129,7 +161,10 @@ export const updateGenre = async (req: Request, res: Response) => {
         // Update the data
         const updatedGenre = await db.update(genre)
             .set({ name: name.trim() })
-            .where(eq(genre.id, parseInt(id)))
+            .where(and(
+                eq(genre.id, parseInt(id)),
+                eq(genre.userId, userId)
+            ))
             .returning();
 
         if (!updatedGenre || updatedGenre.length === 0) {
@@ -167,6 +202,15 @@ export const deleteGenre = async (req: Request, res: Response) => {
         });
     }
 
+    const userId = parseInt(req.user.userId);
+
+    if (isNaN(userId)) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid User Id'
+        })
+    }
+
     // Get parameter and validate
     const { id } = req.params;
 
@@ -181,7 +225,10 @@ export const deleteGenre = async (req: Request, res: Response) => {
     try {
 
         const deletedGenre = await db.delete(genre)
-            .where(eq(genre.id, parseInt(id)))
+            .where(and (
+                eq(genre.id, parseInt(id)),
+                eq(genre.userId, userId)
+            ))
             .returning();
 
         if (!deletedGenre || deletedGenre.length === 0) {

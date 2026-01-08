@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { level } from '../models/level.schema';
 
@@ -10,6 +10,15 @@ export const addLevel = async (req: Request, res: Response) => {
         return res.status(401).json({
             status: 'error',
             message: 'Unauthenticated user'
+        });
+    }
+
+    const userId = parseInt(req.user.userId);
+
+    if (isNaN(userId)) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid User Id'
         });
     }
 
@@ -27,21 +36,25 @@ export const addLevel = async (req: Request, res: Response) => {
     try {
 
         // Validate - Check if submitted level exists
-        const existingLevel = await db.query.genre.findFirst({
-            where: eq(level.name, name)
+        const existingLevel = await db.query.level.findFirst({
+            where: and(
+                eq(level.name, name),
+                eq(level.userId, userId)
+            )
         });
 
         if (existingLevel) {
             return res.status(409).json({
                 status: 'error',
-                message: 'level name already exists'
+                message: 'Level name already exists'
             });
         }
 
         // Save Level
         const newLevel = await db.insert(level).values({
             name: name?.trim(),
-            description: description?.trim()
+            description: description?.trim(),
+            userId: userId
         }).returning();
 
         // Return Success
