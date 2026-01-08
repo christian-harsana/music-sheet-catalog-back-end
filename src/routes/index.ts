@@ -4,6 +4,8 @@ import authRoutes from './auth.routes';
 import profileRoutes from './profile.routes';
 import genreRoutes from './genre.routes';
 import levelRoutes from './level.routes';
+import sourceRoutes from './source.routes';
+import sheetRoutes from './sheet.routes';
 
 const router = Router();
 
@@ -12,5 +14,7 @@ router.use('/auth', authRoutes);
 router.use('/profile', profileRoutes);
 router.use('/genre', genreRoutes);
 router.use('/level', levelRoutes);
+router.use('/source', sourceRoutes);
+router.use('/sheet', sheetRoutes);
 
 export default router; 
