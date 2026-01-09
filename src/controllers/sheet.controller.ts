@@ -2,6 +2,9 @@ import e, { Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { sheet } from '../models/sheet.schema';
+import { genre } from '../models/genre.schema';
+import { level } from '../models/level.schema';
+import { source } from '../models/source.schema';
 
 export const addSheet = async (req: Request, res: Response) => {
  
@@ -86,17 +89,28 @@ export const getSheet = async (req: Request, res: Response) => {
 
     // Get all sheets
     try {
-        const sheets = await db.query.sheet.findMany({
-            where: eq(sheet.userId, userId),
-            orderBy: asc(sheet.title)
-        });
+        const sheets = await db.select({
+                id: sheet.id,
+                title: sheet.title,
+                sourceId: source.id,
+                sourceTitle: source.title,
+                levelId: level.id,
+                levelName: level.name,
+                genreId: genre.id,
+                genreName: genre.name
+            })
+            .from(sheet)
+            .leftJoin(genre, eq(sheet.genreId, genre.id))
+            .leftJoin(level, eq(sheet.levelId, level.id))
+            .leftJoin(source, eq(sheet.sourceId, source.id))
+            .where(eq(sheet.userId, userId))
+            .orderBy(asc(sheet.title));
 
         return res.status(200).json({
             status: 'success',
             data: sheets
         });
     }
-
     catch (error: unknown) {
         const errorMessage = error instanceof Error? error.message : 'unknown error';
 
