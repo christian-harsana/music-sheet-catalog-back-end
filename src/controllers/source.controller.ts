@@ -125,7 +125,7 @@ export const updateSource = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({
             status: 'error',
-            message: 'Unauthenticateduser'
+            message: 'Unauthenticated user'
         });
     }
 
@@ -201,7 +201,7 @@ export const deleteSource = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({
             status: 'error',
-            message: 'Unauthenticateduser'
+            message: 'Unauthenticated user'
         });
     }
 

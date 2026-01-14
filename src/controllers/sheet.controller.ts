@@ -128,7 +128,7 @@ export const updateSheet = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({
             status: 'error',
-            message: 'Unauthenticateduser'
+            message: 'Unauthenticated user'
         });
     }
 
@@ -205,7 +205,7 @@ export const deleteSheet = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({
             status: 'error',
-            message: 'Unauthenticateduser'
+            message: 'Unauthenticated user'
         });
     }
 

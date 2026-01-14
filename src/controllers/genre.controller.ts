@@ -198,7 +198,7 @@ export const deleteGenre = async (req: Request, res: Response) => {
     if (!req.user) {
         return res.status(401).json({
             status: 'error',
-            message: 'Unauthenticateduser'
+            message: 'Unauthenticated user'
         });
     }
 
