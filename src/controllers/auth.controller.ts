@@ -143,9 +143,9 @@ export const login = async (req: Request, res: Response) => {
 // VERIFY
 export const verify = async(req: Request, res: Response) => {
 
-    try {
+    const { token } = req.body;
 
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+    try {
 
         if (!token) {
             return res.status(401).json({
