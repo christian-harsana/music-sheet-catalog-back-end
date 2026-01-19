@@ -26,15 +26,24 @@ export const addSheet = async (req: Request, res: Response) => {
     }
 
     // Get data from the body
-    const { title, sourceId, levelId, genreId } = req.body;
+    let { title, sourceId, levelId, genreId } = req.body;
 
-    // Validate input
+    console.log(title);
+    console.log(sourceId);
+    console.log(levelId);
+    console.log(genreId);
+
+    // Validate and sanitise input
     if (!title) {
         return res.status(400).json({
             status: 'error',
             message: 'Sheet title is required'
         });
     }
+
+    sourceId = sourceId?.length < 1 ? null : sourceId;
+    levelId = levelId?.length < 1 ? null : levelId;
+    genreId = genreId?.length < 1 ? null : genreId;
 
     try {
 
@@ -92,11 +101,11 @@ export const getSheet = async (req: Request, res: Response) => {
         const sheets = await db.select({
                 id: sheet.id,
                 title: sheet.title,
-                sourceId: source.id,
+                sourceId: sheet.sourceId,
                 sourceTitle: source.title,
-                levelId: level.id,
+                levelId: sheet.levelId,
                 levelName: level.name,
-                genreId: genre.id,
+                genreId: sheet.genreId,
                 genreName: genre.name
             })
             .from(sheet)
@@ -143,7 +152,7 @@ export const updateSheet = async (req: Request, res: Response) => {
 
     // Get parameter and input and validate inputs
     const { id } = req.params;
-    const { title, sourceId, levelId, genreId } = req.body;
+    let { title, sourceId, levelId, genreId } = req.body;
 
     if (!id) {
         return res.status(400).json({
@@ -158,6 +167,12 @@ export const updateSheet = async (req: Request, res: Response) => {
             message: 'Title is required'
         });
     }
+
+    // Sanitise inputs
+    sourceId = sourceId?.length < 1 ? null : sourceId;
+    levelId = levelId?.length < 1 ? null : levelId;
+    genreId = genreId?.length < 1 ? null : genreId;
+
 
     try {
         // Update the data
