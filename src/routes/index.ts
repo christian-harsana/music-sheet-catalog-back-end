@@ -6,6 +6,7 @@ import genreRoutes from './genre.routes';
 import levelRoutes from './level.routes';
 import sourceRoutes from './source.routes';
 import sheetRoutes from './sheet.routes';
+import statRoutes from './stat.routes';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use('/genre', genreRoutes);
 router.use('/level', levelRoutes);
 router.use('/source', sourceRoutes);
 router.use('/sheet', sheetRoutes);
+router.use('/stats', statRoutes);
 
 export default router; 

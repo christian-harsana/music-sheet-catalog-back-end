@@ -28,10 +28,6 @@ export const addSheet = async (req: Request, res: Response) => {
     // Get data from the body
     let { title, sourceId, levelId, genreId } = req.body;
 
-    console.log(title);
-    console.log(sourceId);
-    console.log(levelId);
-    console.log(genreId);
 
     // Validate and sanitise input
     if (!title) {
