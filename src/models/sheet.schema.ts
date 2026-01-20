@@ -7,6 +7,7 @@ import { appUser } from "./app-user.schema";
 export const sheet = pgTable('sheet', {
     id: serial('id').primaryKey(),
     title: text('title').notNull(),
+    key: text('key'),
     sourceId: integer('source_id').references(() => source.id),
     levelId: integer('level_id').references(() => level.id),
     genreId: integer('genre_id').references(() => genre.id),

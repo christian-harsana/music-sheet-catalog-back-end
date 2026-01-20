@@ -1,0 +1,1 @@
+ALTER TABLE "sheet" ADD COLUMN "key" text;

@@ -59,7 +59,8 @@ export const summary = async (req: Request, res: Response) => {
                         or(
                             isNull(sheet.sourceId),
                             isNull(sheet.levelId),
-                            isNull(sheet.genreId)
+                            isNull(sheet.genreId),
+                            isNull(sheet.key),
                         )
                     )
                 )

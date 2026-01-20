@@ -26,7 +26,7 @@ export const addSheet = async (req: Request, res: Response) => {
     }
 
     // Get data from the body
-    let { title, sourceId, levelId, genreId } = req.body;
+    let { title, key, sourceId, levelId, genreId } = req.body;
 
 
     // Validate and sanitise input
@@ -37,6 +37,7 @@ export const addSheet = async (req: Request, res: Response) => {
         });
     }
 
+    key = key?.length < 1 ? null : key;
     sourceId = sourceId?.length < 1 ? null : sourceId;
     levelId = levelId?.length < 1 ? null : levelId;
     genreId = genreId?.length < 1 ? null : genreId;
@@ -46,6 +47,7 @@ export const addSheet = async (req: Request, res: Response) => {
         // Save Sheet
         const newSheet = await db.insert(sheet).values({
             title: title?.trim(),
+            key: key,
             sourceId: sourceId,
             levelId: levelId,
             genreId: genreId,
@@ -97,6 +99,7 @@ export const getSheet = async (req: Request, res: Response) => {
         const sheets = await db.select({
                 id: sheet.id,
                 title: sheet.title,
+                key: sheet.key,
                 sourceId: sheet.sourceId,
                 sourceTitle: source.title,
                 levelId: sheet.levelId,
@@ -148,7 +151,7 @@ export const updateSheet = async (req: Request, res: Response) => {
 
     // Get parameter and input and validate inputs
     const { id } = req.params;
-    let { title, sourceId, levelId, genreId } = req.body;
+    let { title, key, sourceId, levelId, genreId } = req.body;
 
     if (!id) {
         return res.status(400).json({
@@ -165,6 +168,7 @@ export const updateSheet = async (req: Request, res: Response) => {
     }
 
     // Sanitise inputs
+    key = key?.length < 1 ? null : key;
     sourceId = sourceId?.length < 1 ? null : sourceId;
     levelId = levelId?.length < 1 ? null : levelId;
     genreId = genreId?.length < 1 ? null : genreId;
@@ -175,6 +179,7 @@ export const updateSheet = async (req: Request, res: Response) => {
         const updatedSheet = await db.update(sheet)
             .set({ 
                 title: title.trim(),
+                key: key,
                 sourceId: sourceId,
                 levelId: levelId,
                 genreId : genreId
