@@ -88,9 +88,19 @@ export const getLevel = async (req: Request, res: Response) => {
         });
     }
 
+    const userId = parseInt(req.user.userId);
+
+    if (isNaN(userId)) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid User Id'
+        });
+    }
+
     // Get all levels
     try {
         const levels = await db.query.level.findMany({
+            where: eq(level.userId, userId),
             orderBy: asc(level.id)
         });
 
