@@ -5,39 +5,44 @@ import { eq } from 'drizzle-orm';
 import { db } from '../config/db';
 import { appUser } from '../models/app-user.schema';
 import { config } from '../config/index';
+import { success, z, ZodError } from 'zod';
 
 // SIGN UP
 export const signUp = async (req: Request, res: Response) => {
 
-    const { email, password, name } = req.body;
-
-    // Validate Input - Required 
-    if (!email || !password) {
-         return res.status(400).json({ 
-            status: 'error', 
-            message: 'Email and password are required'
-        });
-    }
+    // Define expected data schema
+    const newUserSchema = z.object({
+        email: z.email(),
+        password: z.string().min(8),
+        name: z.string().optional(),
+    });
     
     try {
-        // Validate - Check if user exists
-        // const existingUser = await db.select().from(appUser).where(eq(appUser.email, email));
 
+        const { email, password, name } = req.body;
+
+        newUserSchema.parse({
+            email: email,
+            password: password,
+            name: name
+        });
+
+        // Validate - Check if user exists
         const existingUser = await db.query.appUser.findFirst({
             where: eq(appUser.email, email)
         });
 
         if (existingUser) {
             return res.status(409).json({ 
-                status: 'error', 
-                message: 'User already exists'
+                success: false, 
+                message: 'User already exists',
+                errors: []
             });
         }
 
         // Hash Password (bcrypt)
         const saltRounds = 10; // NOTE: Higher number = more secure but slower, typical value 10-12
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-
 
         // Save User
         const newUser = await db.insert(appUser).values({
@@ -49,19 +54,35 @@ export const signUp = async (req: Request, res: Response) => {
 
         // Return Success
         return res.status(201).json({ 
-            status: 'success', 
-            message: 'User registered successfully' 
+            success: true, 
+            message: 'User registered successfully'
         });
+
     }
     catch (error: unknown) {
+
+        if (error instanceof ZodError) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Validation Error',
+                errors: error.issues.map(issue => ({
+                    field: issue.path.join('.'),
+                    message: issue.message
+                }))
+            });
+        }
 
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
         return res.status(500).json({ 
-            status: 'error', 
-            message: 'Server error',
-            error: errorMessage 
+            success: false,
+            message: errorMessage,
+            errors: []
         });
+
+        // TODO:
+        // Implement environment check for message, only show details on DEV
+        // process.env.NODE_ENV === 'development' ? errorMessage: 'An unexpected error occurred. Please try again later.'
     }
 };
 
@@ -69,17 +90,21 @@ export const signUp = async (req: Request, res: Response) => {
 // LOGIN
 export const login = async (req: Request, res: Response) => {
   
-    const { email, password } = req.body;
-
-    // Validate Input
-    if (!email || !password) {
-         return res.status(400).json({ 
-            status: 'error', 
-            message: 'Email and password are required'
-        });
-    }
+    // Define expected data schema
+    const loginSchema = z.object({
+        email: z.email(),
+        password: z.string().min(8)
+    });
 
     try {
+
+        const { email, password } = req.body;
+
+        loginSchema.parse({
+            email: email,
+            password: password
+        });
+
         // Validate - Check if user exists
         const user = await db.query.appUser.findFirst({
             where: eq(appUser.email, email)
@@ -87,8 +112,9 @@ export const login = async (req: Request, res: Response) => {
 
         if (!user) {
             return res.status(401).json({
-                status: 'error',
-                message: 'Invalid email or password'
+                success: false,
+                message: 'Invalid email or password',
+                errors: []
             });
         }
 
@@ -97,8 +123,9 @@ export const login = async (req: Request, res: Response) => {
 
         if (!isPasswordValid) {
             return res.status(401).json({
-                status: 'error',
-                message: 'Invalid email or password'
+                success: false,
+                message: 'Invalid email or password',
+                errors: []
             });
         }
 
@@ -116,7 +143,7 @@ export const login = async (req: Request, res: Response) => {
 
         // Return login successful - token, user
         return res.status(200).json({
-            status: 'success',
+            success: true,
             message: 'Login successful',
             data: { 
                 userId: user.id, 
@@ -129,13 +156,28 @@ export const login = async (req: Request, res: Response) => {
     }
     catch (error: unknown) {
 
+        if (error instanceof ZodError) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Validation Error',
+                errors: error.issues.map(issue => ({
+                    field: issue.path.join('.'),
+                    message: issue.message
+                }))
+            });
+        }
+
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
         return res.status(500).json({
-            status: 'error',
-            message: 'Server error',
-            error: errorMessage
-        })
+            success: false,
+            message: errorMessage,
+            errors: []
+        });
+
+        // TODO:
+        // Implement environment check for message, only show details on DEV
+        // process.env.NODE_ENV === 'development' ? errorMessage: 'An unexpected error occurred. Please try again later.'
     }
 };
 
@@ -143,15 +185,17 @@ export const login = async (req: Request, res: Response) => {
 // VERIFY
 export const verify = async(req: Request, res: Response) => {
 
-    const { token } = req.body;
+    const tokenVerificationSchema = z.object({
+        token: z.jwt()
+    })
 
     try {
 
-        if (!token) {
-            return res.status(401).json({
-                error: 'Access denied. No token provided.'
-            });
-        }
+        const { token } = req.body;
+
+        tokenVerificationSchema.parse({
+            token: token
+        })
 
         const decoded = jwt.verify(token, config.jwt.secret) as JwtPayload;
        
@@ -162,12 +206,14 @@ export const verify = async(req: Request, res: Response) => {
 
         if (!user) {
             return res.status(400).json({
-                error: 'User not found'
+                success: false, 
+                message: 'User not found',
+                errors: []
             });
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true, 
             message: 'Verification successful',
             data: { 
                 userId: user.id, 
@@ -178,25 +224,38 @@ export const verify = async(req: Request, res: Response) => {
     }
     catch(error) {
 
+        if (error instanceof ZodError) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Validation Error',
+                errors: error.issues.map(issue => ({
+                    field: issue.path.join('.'),
+                    message: issue.message
+                }))
+            });
+        }
+
         if (error instanceof Error) {
 
             // Handle specific JWT errors
             if (error.name === 'JsonWebTokenError') {
                 return res.status(401).json({ 
-                    error: 'Invalid token.' 
+                    success: false,
+                    message: 'Invalid token.' 
                 });
             }
                 
             if (error.name === 'TokenExpiredError') {
                 return res.status(401).json({ 
-                    error: 'Token expired.' 
+                    success: false,
+                    message: 'Token expired.' 
                 });
             }
         }
 
         res.status(400).json({
-            error: 'Token verification failed'
+            success: false,
+            message: 'Token verification failed'
         });
     }
-
 }
