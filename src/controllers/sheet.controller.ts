@@ -1,4 +1,4 @@
-import e, { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { sheet } from '../models/sheet.schema';
@@ -6,28 +6,29 @@ import { genre } from '../models/genre.schema';
 import { level } from '../models/level.schema';
 import { source } from '../models/source.schema';
 
-export const addSheet = async (req: Request, res: Response) => {
+export const addSheet = async (req: Request, res: Response, next: NextFunction) => {
  
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        });
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     });
+    // }
+    
 
     // Get data from the body
     let { title, key, sourceId, levelId, genreId } = req.body;
-
 
     // Validate and sanitise input
     if (!title) {
@@ -41,6 +42,8 @@ export const addSheet = async (req: Request, res: Response) => {
     sourceId = sourceId?.length < 1 ? null : sourceId;
     levelId = levelId?.length < 1 ? null : levelId;
     genreId = genreId?.length < 1 ? null : genreId;
+    // --- END OF TODO ---
+
 
     try {
 
@@ -63,36 +66,30 @@ export const addSheet = async (req: Request, res: Response) => {
 
     }
     catch (error: unknown) {
-        
-        const errorMessage  = error instanceof Error ? error.message : 'Unknown error';
-
-        return res.status(500).json({
-            status: 'error',
-            message: 'Server error',
-            error: errorMessage
-        })
+        next(error);
     }
 };
 
 
-export const getSheet = async (req: Request, res: Response) => {
+export const getSheet = async (req: Request, res: Response, next: NextFunction) => {
 
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        });
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     });
+    // }
 
     // Get all sheets
     try {
@@ -120,59 +117,55 @@ export const getSheet = async (req: Request, res: Response) => {
         });
     }
     catch (error: unknown) {
-        const errorMessage = error instanceof Error? error.message : 'unknown error';
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 };
 
 
-export const updateSheet = async (req: Request, res: Response) => {
+export const updateSheet = async (req: Request, res: Response, next: NextFunction) => {
     
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        })
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     })
+    // }
 
     // Get parameter and input and validate inputs
     const { id } = req.params;
     let { title, key, sourceId, levelId, genreId } = req.body;
 
-    if (!id) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Sheet Id is required'
-        });
-    }
+    // if (!id) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Sheet Id is required'
+    //     });
+    // }
 
-    if (!title || title.trim() === "") {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Title is required'
-        });
-    }
+    // if (!title || title.trim() === "") {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Title is required'
+    //     });
+    // }
 
     // Sanitise inputs
     key = key?.length < 1 ? null : key;
     sourceId = sourceId?.length < 1 ? null : sourceId;
     levelId = levelId?.length < 1 ? null : levelId;
     genreId = genreId?.length < 1 ? null : genreId;
-
+    // --- END OF TODO ---
 
     try {
         // Update the data
@@ -191,10 +184,7 @@ export const updateSheet = async (req: Request, res: Response) => {
             .returning();
 
         if (!updatedSheet || updatedSheet.length === 0) {
-            return res.status(404).json({
-                status: 'error',
-                message: 'Sheet not found'
-            });
+            throw new Error('Not found', { cause: 'Sheet not found' });
         }
 
         return res.status(200).json({
@@ -204,45 +194,41 @@ export const updateSheet = async (req: Request, res: Response) => {
         });
     }
     catch (error: unknown) {
-
-        const errorMessage = error instanceof Error ? error.message : "unknown error";
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 };
 
 
-export const deleteSheet = async (req: Request, res: Response) => {
+export const deleteSheet = async (req: Request, res: Response, next: NextFunction) => {
 
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        })
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     })
+    // }
 
     // Get parameter and validate
     const { id } = req.params;
 
-    if (!id) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Sheet Id is required'
-        })
-    }
+    // if (!id) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Sheet Id is required'
+    //     })
+    // }
+    // --- END OF TODO ---
 
     // Delete
     try {
@@ -255,10 +241,7 @@ export const deleteSheet = async (req: Request, res: Response) => {
             .returning();
 
         if (!deletedSheet || deletedSheet.length === 0) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Sheet not found.'
-            });
+            throw new Error('Not found', { cause: 'Sheet not found' });
         }
 
         return res.status(200).json({
@@ -268,11 +251,6 @@ export const deleteSheet = async (req: Request, res: Response) => {
 
     }
     catch(error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "unknown error";
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 }

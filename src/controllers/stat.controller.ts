@@ -1,29 +1,30 @@
-import { Request, Response } from 'express';
-import { eq, asc, and, or, count, isNull } from 'drizzle-orm';
+import { NextFunction, Request, Response } from 'express';
+import { eq, and, or, count, isNull } from 'drizzle-orm';
 import { db } from '../config/db';
 import { sheet } from '../models/sheet.schema';
 import { level } from '../models/level.schema';
 import { genre } from '../models/genre.schema';
-import { generateKey } from 'crypto';
 
-export const summary = async (req: Request, res: Response) => {
+export const summary = async (req: Request, res: Response, next: NextFunction) => {
 
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        });
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     });
+    // }
+    // --- END OF TODO ---
 
     // Get summary
     try {
@@ -73,11 +74,6 @@ export const summary = async (req: Request, res: Response) => {
     }
 
     catch (error: unknown) {
-        const errorMessage = error instanceof Error? error.message : 'unknown error';
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 };

@@ -1,14 +1,14 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { db } from '../config/db';
 import { appUser } from '../models/app-user.schema';
 import { config } from '../config/index';
-import { success, z, ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 
 // SIGN UP
-export const signUp = async (req: Request, res: Response) => {
+export const signUp = async (req: Request, res: Response, next: NextFunction) => {
 
     // Define expected data schema
     const newUserSchema = z.object({
@@ -33,11 +33,7 @@ export const signUp = async (req: Request, res: Response) => {
         });
 
         if (existingUser) {
-            return res.status(409).json({ 
-                success: false, 
-                message: 'User already exists',
-                errors: []
-            });
+            throw new Error("Conflict", {cause: "User already exists"});
         }
 
         // Hash Password (bcrypt)
@@ -50,7 +46,6 @@ export const signUp = async (req: Request, res: Response) => {
             name: name?.trim(),
             password: hashedPassword
         }).returning();
-
 
         // Return Success
         return res.status(201).json({ 
@@ -72,32 +67,21 @@ export const signUp = async (req: Request, res: Response) => {
             });
         }
 
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-        return res.status(500).json({ 
-            success: false,
-            message: errorMessage,
-            errors: []
-        });
-
-        // TODO:
-        // Implement environment check for message, only show details on DEV
-        // process.env.NODE_ENV === 'development' ? errorMessage: 'An unexpected error occurred. Please try again later.'
+        next(error);
     }
 };
 
 
 // LOGIN
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   
     // Define expected data schema
     const loginSchema = z.object({
         email: z.email(),
-        password: z.string().min(8)
+        password: z.string().min(7)
     });
 
     try {
-
         const { email, password } = req.body;
 
         loginSchema.parse({
@@ -111,22 +95,14 @@ export const login = async (req: Request, res: Response) => {
         });
 
         if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid email or password',
-                errors: []
-            });
+            throw new Error('Unauthorized', {cause: 'Invalid email or password'});
         }
 
         // Compare Password
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid email or password',
-                errors: []
-            });
+            throw new Error('Unauthorized', {cause: 'Invalid email or password'});
         }
 
         // Sign JWT
@@ -167,23 +143,13 @@ export const login = async (req: Request, res: Response) => {
             });
         }
 
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-        return res.status(500).json({
-            success: false,
-            message: errorMessage,
-            errors: []
-        });
-
-        // TODO:
-        // Implement environment check for message, only show details on DEV
-        // process.env.NODE_ENV === 'development' ? errorMessage: 'An unexpected error occurred. Please try again later.'
+        next(error);
     }
 };
 
 
 // VERIFY
-export const verify = async(req: Request, res: Response) => {
+export const verify = async(req: Request, res: Response, next: NextFunction) => {
 
     const tokenVerificationSchema = z.object({
         token: z.jwt()
@@ -205,11 +171,7 @@ export const verify = async(req: Request, res: Response) => {
         });
 
         if (!user) {
-            return res.status(400).json({
-                success: false, 
-                message: 'User not found',
-                errors: []
-            });
+            throw new Error('Not Found', {cause: 'User not found'});
         }
 
         return res.status(200).json({
@@ -222,7 +184,7 @@ export const verify = async(req: Request, res: Response) => {
             }
         })
     }
-    catch(error) {
+    catch(error: unknown) {
 
         if (error instanceof ZodError) {
             return res.status(400).json({ 
@@ -235,27 +197,6 @@ export const verify = async(req: Request, res: Response) => {
             });
         }
 
-        if (error instanceof Error) {
-
-            // Handle specific JWT errors
-            if (error.name === 'JsonWebTokenError') {
-                return res.status(401).json({ 
-                    success: false,
-                    message: 'Invalid token.' 
-                });
-            }
-                
-            if (error.name === 'TokenExpiredError') {
-                return res.status(401).json({ 
-                    success: false,
-                    message: 'Token expired.' 
-                });
-            }
-        }
-
-        res.status(400).json({
-            success: false,
-            message: 'Token verification failed'
-        });
+        next(error);
     }
 }

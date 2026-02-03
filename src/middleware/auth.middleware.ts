@@ -26,9 +26,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         const token = req.header('Authorization')?.replace('Bearer ', '');
 
         if (!token) {
-            return res.status(401).json({
-                error: 'Access denied. No token provided.'
-            });
+            throw new Error('Unauthorized', { cause: 'Access denied. No token provided' });
         }
         
         const decoded = jwt.verify(token, config.jwt.secret) as JwtUserPayload;
@@ -40,26 +38,6 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         next();
     }
     catch(error) {
-
-        if (error instanceof Error) {
-
-            // Handle specific JWT errors
-            if (error.name === 'JsonWebTokenError') {
-                return res.status(401).json({ 
-                    error: 'Invalid token.' 
-                });
-            }
-                
-            if (error.name === 'TokenExpiredError') {
-                return res.status(401).json({ 
-                    error: 'Token expired.' 
-                });
-            }
-        }
-
-        // Generic error
-        res.status(400).json({ 
-            error: 'Token verification failed.' 
-        });
+        next(error);
     }
 }

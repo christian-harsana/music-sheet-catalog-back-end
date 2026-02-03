@@ -1,37 +1,40 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { level } from '../models/level.schema';
 
-export const addLevel = async (req: Request, res: Response) => {
- 
+export const addLevel = async (req: Request, res: Response, next: NextFunction) => {
+
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        });
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     });
+    // }
+    // --- END OF TODO ---
 
     // Get data from the body
     const { name, description } = req.body;
 
     // Validate input
-    if (!name) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Level name is required'
-        });
-    }
+    // if (!name) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Level name is required'
+    //     });
+    // }
+    // --- END OF TODO ---
 
     try {
 
@@ -44,10 +47,7 @@ export const addLevel = async (req: Request, res: Response) => {
         });
 
         if (existingLevel) {
-            return res.status(409).json({
-                status: 'error',
-                message: 'Level name already exists'
-            });
+            throw new Error('Conflict', {cause: 'Level name already exists'});
         }
 
         // Save Level
@@ -66,36 +66,31 @@ export const addLevel = async (req: Request, res: Response) => {
 
     }
     catch (error: unknown) {
-        
-        const errorMessage  = error instanceof Error ? error.message : 'Unknown error';
-
-        return res.status(500).json({
-            status: 'error',
-            message: 'Server error',
-            error: errorMessage
-        })
+        next(error);
     }
 };
 
 
-export const getLevel = async (req: Request, res: Response) => {
+export const getLevel = async (req: Request, res: Response, next: NextFunction) => {
 
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        });
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     });
+    // }
+    // --- END OF TODO ---
 
     // Get all levels
     try {
@@ -111,43 +106,40 @@ export const getLevel = async (req: Request, res: Response) => {
     }
 
     catch (error: unknown) {
-        const errorMessage = error instanceof Error? error.message : 'unknown error';
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 };
 
 
-export const updateLevel = async (req: Request, res: Response) => {
+export const updateLevel = async (req: Request, res: Response, next:NextFunction) => {
     
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
     // Get parameter and input and validate inputs
     const { id } = req.params;
     const { name, description } = req.body;
 
-    if (!id) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Level Id is required'
-        });
-    }
+    // if (!id) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Level Id is required'
+    //     });
+    // }
 
-    if (!name || name.trim() === "") {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Name is required'
-        });
-    }
+    // if (!name || name.trim() === "") {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Name is required'
+    //     });
+    // }
+    // --- END OF TODO ---
 
     try {
         // Update the data
@@ -160,10 +152,7 @@ export const updateLevel = async (req: Request, res: Response) => {
             .returning();
 
         if (!updatedLevel || updatedLevel.length === 0) {
-            return res.status(404).json({
-                status: 'error',
-                message: 'Level not found'
-            });
+            throw new Error('Not found', {cause: 'Level not found'});
         }
 
         return res.status(200).json({
@@ -173,36 +162,32 @@ export const updateLevel = async (req: Request, res: Response) => {
         });
     }
     catch (error: unknown) {
-
-        const errorMessage = error instanceof Error ? error.message : "unknown error";
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 };
 
 
-export const deleteLevel = async (req: Request, res: Response) => {
+export const deleteLevel = async (req: Request, res: Response, next: NextFunction) => {
 
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
     // Get parameter and validate
     const { id } = req.params;
 
-    if (!id) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Level id is required'
-        })
-    }
+    // if (!id) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Level id is required'
+    //     })
+    // }
+    // --- END OF TODO ---
 
     // Delete
     try {
@@ -212,10 +197,7 @@ export const deleteLevel = async (req: Request, res: Response) => {
             .returning();
 
         if (!deletedLevel || deletedLevel.length === 0) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Level not found.'
-            });
+            throw new Error('Not found', {cause: 'Level not found'});
         }
 
         return res.status(200).json({
@@ -225,11 +207,6 @@ export const deleteLevel = async (req: Request, res: Response) => {
 
     }
     catch(error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "unknown error";
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 }

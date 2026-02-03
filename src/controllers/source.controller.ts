@@ -1,37 +1,39 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { source } from '../models/source.schema';
 
-export const addSource = async (req: Request, res: Response) => {
+export const addSource = async (req: Request, res: Response, next: NextFunction) => {
  
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        });
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     });
+    // }
 
     // Get data from the body
     const { title, author, format } = req.body;
 
     // Validate input
-    if (!title) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Source title is required'
-        });
-    }
+    // if (!title) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Source title is required'
+    //     });
+    // }
+    // --- END OF TODO ---
 
     try {
 
@@ -41,10 +43,7 @@ export const addSource = async (req: Request, res: Response) => {
         });
 
         if (existingSource) {
-            return res.status(409).json({
-                status: 'error',
-                message: 'source title already exists'
-            });
+            throw new Error('Conflict', { cause: 'Source title already exists' });
         }
 
         // Save Source
@@ -64,36 +63,31 @@ export const addSource = async (req: Request, res: Response) => {
 
     }
     catch (error: unknown) {
-        
-        const errorMessage  = error instanceof Error ? error.message : 'Unknown error';
-
-        return res.status(500).json({
-            status: 'error',
-            message: 'Server error',
-            error: errorMessage
-        })
+        next(error);
     }
 };
 
 
-export const getSource = async (req: Request, res: Response) => {
+export const getSource = async (req: Request, res: Response, next: NextFunction) => {
 
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        });
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     });
+    // }
+    // --- END OF TODO ---
 
     // Get all sources
     try {
@@ -109,52 +103,49 @@ export const getSource = async (req: Request, res: Response) => {
     }
 
     catch (error: unknown) {
-        const errorMessage = error instanceof Error? error.message : 'unknown error';
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 };
 
 
-export const updateSource = async (req: Request, res: Response) => {
+export const updateSource = async (req: Request, res: Response, next: NextFunction) => {
     
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        });
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     });
+    // }
 
     // Get parameter and input and validate inputs
     const { id } = req.params;
     const { title, author, format } = req.body;
 
-    if (!id) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Source Id is required'
-        });
-    }
+    // if (!id) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Source Id is required'
+    //     });
+    // }
 
-    if (!title || title.trim() === "") {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Title is required'
-        });
-    }
+    // if (!title || title.trim() === "") {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Title is required'
+    //     });
+    // }
+    // --- END OF TODO ---
 
     try {
         // Update the data
@@ -171,10 +162,7 @@ export const updateSource = async (req: Request, res: Response) => {
             .returning();
 
         if (!updatedSource || updatedSource.length === 0) {
-            return res.status(404).json({
-                status: 'error',
-                message: 'Source not found'
-            });
+            throw new Error('Not found', { cause: 'Source not found'});
         }
 
         return res.status(200).json({
@@ -184,45 +172,41 @@ export const updateSource = async (req: Request, res: Response) => {
         });
     }
     catch (error: unknown) {
-
-        const errorMessage = error instanceof Error ? error.message : "unknown error";
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 };
 
 
-export const deleteSource = async (req: Request, res: Response) => {
+export const deleteSource = async (req: Request, res: Response, next:NextFunction) => {
 
+    // TODO: Reallocate to validation middleware
     // Verify authenticated user
-    if (!req.user) {
-        return res.status(401).json({
-            status: 'error',
-            message: 'Unauthenticated user'
-        });
-    }
+    // if (!req.user) {
+    //     return res.status(401).json({
+    //         status: 'error',
+    //         message: 'Unauthenticated user'
+    //     });
+    // }
 
-    const userId = parseInt(req.user.userId);
+    const userId = parseInt(req.user!.userId);
 
-    if (isNaN(userId)) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Invalid User Id'
-        });
-    }
+    // if (isNaN(userId)) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Invalid User Id'
+    //     });
+    // }
 
     // Get parameter and validate
     const { id } = req.params;
 
-    if (!id) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'Source id is required'
-        })
-    }
+    // if (!id) {
+    //     return res.status(400).json({
+    //         status: 'error',
+    //         message: 'Source id is required'
+    //     })
+    // }
+    // --- END OF TODO ---
 
     // Delete
     try {
@@ -234,10 +218,7 @@ export const deleteSource = async (req: Request, res: Response) => {
             .returning();
 
         if (!deletedSource || deletedSource.length === 0) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Source not found.'
-            });
+            throw new Error('Not found', { cause: 'Source not found' });
         }
 
         return res.status(200).json({
@@ -247,11 +228,6 @@ export const deleteSource = async (req: Request, res: Response) => {
 
     }
     catch(error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "unknown error";
-
-        return res.status(500).json({
-            status: 'error',
-            message: errorMessage
-        });
+        next(error);
     }
 }
