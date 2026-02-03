@@ -11,7 +11,7 @@ export const summary = async (req: Request, res: Response, next: NextFunction) =
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -20,7 +20,7 @@ export const summary = async (req: Request, res: Response, next: NextFunction) =
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -68,7 +68,7 @@ export const summary = async (req: Request, res: Response, next: NextFunction) =
         ]);
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             data: [sheetsByLevel, sheetsByGenre, sheetsWithMissingData]
         });
     }

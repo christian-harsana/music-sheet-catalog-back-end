@@ -8,7 +8,7 @@ export const profile = async (req: Request, res: Response, next: NextFunction) =
     // TODO: Reallocate to validation middleware
     // if (!req.user) {
     //     return res.status(401).json({ 
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user' 
     //     });
     // }
@@ -23,7 +23,7 @@ export const profile = async (req: Request, res: Response, next: NextFunction) =
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             data: { 
                 userId: user.id, 
                 email: user.email,

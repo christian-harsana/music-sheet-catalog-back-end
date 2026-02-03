@@ -14,7 +14,7 @@ export const addGenre = async (req: Request, res: Response, next: NextFunction) 
     // // Verify authenticated user - 
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -23,7 +23,7 @@ export const addGenre = async (req: Request, res: Response, next: NextFunction) 
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -88,14 +88,14 @@ export const getGenre = async (req: Request, res: Response, next: NextFunction) 
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -133,7 +133,7 @@ export const updateGenre = async (req: Request, res: Response, next: NextFunctio
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -142,7 +142,7 @@ export const updateGenre = async (req: Request, res: Response, next: NextFunctio
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     })
     // }
@@ -158,14 +158,14 @@ export const updateGenre = async (req: Request, res: Response, next: NextFunctio
         // TODO: Reallocate to validation middleware
         if (!id) {
             return res.status(400).json({
-                status: 'error',
+                success: false,
                 message: 'Genre Id is required'
             });
         }
 
         if (!name || name.trim() === "") {
             return res.status(400).json({
-                status: 'error',
+                success: false,
                 message: 'Name is required'
             });
         }
@@ -190,7 +190,7 @@ export const updateGenre = async (req: Request, res: Response, next: NextFunctio
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             message: 'Update is successful',
             data: updatedGenre[0]
         });
@@ -207,7 +207,7 @@ export const deleteGenre = async (req: Request, res: Response, next: NextFunctio
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -216,7 +216,7 @@ export const deleteGenre = async (req: Request, res: Response, next: NextFunctio
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     })
     // }
@@ -228,7 +228,7 @@ export const deleteGenre = async (req: Request, res: Response, next: NextFunctio
     // TODO: reallocate to validation middleware
     if (!id) {
         return res.status(400).json({
-            status: 'error',
+            success: false,
             message: 'Genre id is required'
         })
     }
@@ -249,7 +249,7 @@ export const deleteGenre = async (req: Request, res: Response, next: NextFunctio
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             message: 'Genre successfully deleted'
         });
 

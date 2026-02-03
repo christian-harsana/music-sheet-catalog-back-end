@@ -9,7 +9,7 @@ export const addLevel = async (req: Request, res: Response, next: NextFunction) 
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -18,7 +18,7 @@ export const addLevel = async (req: Request, res: Response, next: NextFunction) 
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -30,7 +30,7 @@ export const addLevel = async (req: Request, res: Response, next: NextFunction) 
     // Validate input
     // if (!name) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Level name is required'
     //     });
     // }
@@ -59,7 +59,7 @@ export const addLevel = async (req: Request, res: Response, next: NextFunction) 
 
         // Return Success
         return res.status(201).json({
-            status: 'success',
+            success: true,
             message: 'New level added successfully',
             data: newLevel[0]
         });
@@ -77,7 +77,7 @@ export const getLevel = async (req: Request, res: Response, next: NextFunction) 
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -86,7 +86,7 @@ export const getLevel = async (req: Request, res: Response, next: NextFunction) 
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -100,7 +100,7 @@ export const getLevel = async (req: Request, res: Response, next: NextFunction) 
         });
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             data: levels
         });
     }
@@ -117,7 +117,7 @@ export const updateLevel = async (req: Request, res: Response, next:NextFunction
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -128,14 +128,14 @@ export const updateLevel = async (req: Request, res: Response, next:NextFunction
 
     // if (!id) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Level Id is required'
     //     });
     // }
 
     // if (!name || name.trim() === "") {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Name is required'
     //     });
     // }
@@ -156,7 +156,7 @@ export const updateLevel = async (req: Request, res: Response, next:NextFunction
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             message: 'Update is successful',
             data: updatedLevel[0]
         });
@@ -173,7 +173,7 @@ export const deleteLevel = async (req: Request, res: Response, next: NextFunctio
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -183,7 +183,7 @@ export const deleteLevel = async (req: Request, res: Response, next: NextFunctio
 
     // if (!id) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Level id is required'
     //     })
     // }
@@ -201,7 +201,7 @@ export const deleteLevel = async (req: Request, res: Response, next: NextFunctio
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             message: 'Level successfully deleted'
         });
 

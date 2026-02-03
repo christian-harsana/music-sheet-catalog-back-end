@@ -9,7 +9,7 @@ export const addSource = async (req: Request, res: Response, next: NextFunction)
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -18,7 +18,7 @@ export const addSource = async (req: Request, res: Response, next: NextFunction)
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -29,7 +29,7 @@ export const addSource = async (req: Request, res: Response, next: NextFunction)
     // Validate input
     // if (!title) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Source title is required'
     //     });
     // }
@@ -56,7 +56,7 @@ export const addSource = async (req: Request, res: Response, next: NextFunction)
 
         // Return Success
         return res.status(201).json({
-            status: 'success',
+            success: true,
             message: 'New source added successfully',
             data: newSource[0]
         });
@@ -74,7 +74,7 @@ export const getSource = async (req: Request, res: Response, next: NextFunction)
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -83,7 +83,7 @@ export const getSource = async (req: Request, res: Response, next: NextFunction)
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -97,7 +97,7 @@ export const getSource = async (req: Request, res: Response, next: NextFunction)
         });
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             data: sources
         });
     }
@@ -114,7 +114,7 @@ export const updateSource = async (req: Request, res: Response, next: NextFuncti
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -123,7 +123,7 @@ export const updateSource = async (req: Request, res: Response, next: NextFuncti
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -134,14 +134,14 @@ export const updateSource = async (req: Request, res: Response, next: NextFuncti
 
     // if (!id) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Source Id is required'
     //     });
     // }
 
     // if (!title || title.trim() === "") {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Title is required'
     //     });
     // }
@@ -166,7 +166,7 @@ export const updateSource = async (req: Request, res: Response, next: NextFuncti
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             message: 'Update is successful',
             data: updatedSource[0]
         });
@@ -183,7 +183,7 @@ export const deleteSource = async (req: Request, res: Response, next:NextFunctio
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -192,7 +192,7 @@ export const deleteSource = async (req: Request, res: Response, next:NextFunctio
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -202,7 +202,7 @@ export const deleteSource = async (req: Request, res: Response, next:NextFunctio
 
     // if (!id) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Source id is required'
     //     })
     // }
@@ -222,7 +222,7 @@ export const deleteSource = async (req: Request, res: Response, next:NextFunctio
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             message: 'Source successfully deleted'
         });
 

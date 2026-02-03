@@ -12,7 +12,7 @@ export const addSheet = async (req: Request, res: Response, next: NextFunction) 
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -21,7 +21,7 @@ export const addSheet = async (req: Request, res: Response, next: NextFunction) 
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -33,7 +33,7 @@ export const addSheet = async (req: Request, res: Response, next: NextFunction) 
     // Validate and sanitise input
     if (!title) {
         return res.status(400).json({
-            status: 'error',
+            success: false,
             message: 'Sheet title is required'
         });
     }
@@ -59,7 +59,7 @@ export const addSheet = async (req: Request, res: Response, next: NextFunction) 
 
         // Return Success
         return res.status(201).json({
-            status: 'success',
+            success: true,
             message: 'New sheet added successfully',
             data: newSheet[0]
         });
@@ -77,7 +77,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -86,7 +86,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     });
     // }
@@ -112,7 +112,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
             .orderBy(asc(sheet.title));
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             data: sheets
         });
     }
@@ -128,7 +128,7 @@ export const updateSheet = async (req: Request, res: Response, next: NextFunctio
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -137,7 +137,7 @@ export const updateSheet = async (req: Request, res: Response, next: NextFunctio
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     })
     // }
@@ -148,14 +148,14 @@ export const updateSheet = async (req: Request, res: Response, next: NextFunctio
 
     // if (!id) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Sheet Id is required'
     //     });
     // }
 
     // if (!title || title.trim() === "") {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Title is required'
     //     });
     // }
@@ -188,7 +188,7 @@ export const updateSheet = async (req: Request, res: Response, next: NextFunctio
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             message: 'Update is successful',
             data: updatedSheet[0]
         });
@@ -205,7 +205,7 @@ export const deleteSheet = async (req: Request, res: Response, next: NextFunctio
     // Verify authenticated user
     // if (!req.user) {
     //     return res.status(401).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Unauthenticated user'
     //     });
     // }
@@ -214,7 +214,7 @@ export const deleteSheet = async (req: Request, res: Response, next: NextFunctio
 
     // if (isNaN(userId)) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Invalid User Id'
     //     })
     // }
@@ -224,7 +224,7 @@ export const deleteSheet = async (req: Request, res: Response, next: NextFunctio
 
     // if (!id) {
     //     return res.status(400).json({
-    //         status: 'error',
+    //         success: false,
     //         message: 'Sheet Id is required'
     //     })
     // }
@@ -245,7 +245,7 @@ export const deleteSheet = async (req: Request, res: Response, next: NextFunctio
         }
 
         return res.status(200).json({
-            status: 'success',
+            success: true,
             message: 'Sheet successfully deleted'
         });
 
