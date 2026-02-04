@@ -66,6 +66,6 @@ export const errorHandlerMiddleware = (
         message: 'Internal Server Error'
     });
 
-    // Implement environment check for message, only show details on DEV
+    // TODO - Implement environment check for message, only show details on DEV
     // process.env.NODE_ENV === 'development' ? errorMessage: 'An unexpected error occurred. Please try again later.'
 };

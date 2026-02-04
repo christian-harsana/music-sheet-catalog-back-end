@@ -2,41 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { genre } from '../models/genre.schema';
-import { success, z, ZodError } from 'zod';
+import { z } from 'zod';
 
 export const addGenre = async (req: Request, res: Response, next: NextFunction) => {
  
-    const addGenreSchema = z.object({
-        name: z.string()
-    });
-
-    // TODO: reallocate to validation middleware
-    // // Verify authenticated user - 
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    // const userId = parseInt(req.user.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     });
-    // }
-    // --- END OF TODO ---
-
     try {
 
         const { name } = req.body;
-        const userId = parseInt(req.user!.userId); // NOTE: safe to use ! because req user has been checked at the middleware
-
-        addGenreSchema.parse({
-            name: name
-        });
+        const userId = req.user!.userId; // NOTE: safe to use ! because req user has been checked at the validation middleware
 
         // Validate - Check if submitted genre exists
         const existingGenre = await db.query.genre.findFirst({
@@ -65,18 +38,6 @@ export const addGenre = async (req: Request, res: Response, next: NextFunction) 
 
     }
     catch (error: unknown) {
-        
-        if (error instanceof ZodError) {
-            return res.status(400).json({
-                success: false,
-                message: 'Validation Error',
-                errors: error.issues.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }))
-            })
-        }
-
         next(error);
     }
 };
@@ -84,27 +45,10 @@ export const addGenre = async (req: Request, res: Response, next: NextFunction) 
 
 export const getGenre = async (req: Request, res: Response, next: NextFunction) => {
 
-    // TODO: reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     });
-    // }
-    // -- END OF TODO
-
     // Get all genres
     try {
 
-        const userId = parseInt(req.user!.userId);
+        const userId = req.user!.userId;
 
         const genres = await db.query.genre.findMany({
             where: eq(genre.userId, userId),
@@ -125,56 +69,12 @@ export const getGenre = async (req: Request, res: Response, next: NextFunction) 
 
 export const updateGenre = async (req: Request, res: Response, next: NextFunction) => {
     
-    const updateGenreSchema = z.object({
-        name: z.string()
-    });
-
-    // TODO: reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    // const userId = parseInt(req.user.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     })
-    // }
-    // -- END OF TODO --
-    
     try {
 
         // Get parameter and input and validate inputs
         const { id } = req.params;
         const { name } = req.body;
-        const userId = parseInt(req.user!.userId);
-
-        // TODO: Reallocate to validation middleware
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                message: 'Genre Id is required'
-            });
-        }
-
-        if (!name || name.trim() === "") {
-            return res.status(400).json({
-                success: false,
-                message: 'Name is required'
-            });
-        }
-        // -- END OF TODO --
-
-        updateGenreSchema.parse({
-            id: id,
-            name: name
-        });
+        const userId = req.user!.userId;
 
         // Update the data
         const updatedGenre = await db.update(genre)
@@ -203,39 +103,9 @@ export const updateGenre = async (req: Request, res: Response, next: NextFunctio
 
 export const deleteGenre = async (req: Request, res: Response, next: NextFunction) => {
 
-    // TODO: reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    const userId = parseInt(req.user!.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     })
-    // }
-    // --- END OF TODO ---
-
-    // Get parameter and validate
-    const { id } = req.params;
-
-    // TODO: reallocate to validation middleware
-    if (!id) {
-        return res.status(400).json({
-            success: false,
-            message: 'Genre id is required'
-        })
-    }
-    // --- END OF TODO
-
-    // Delete
     try {
+        const { id } = req.params;
+        const userId = req.user!.userId;
 
         const deletedGenre = await db.delete(genre)
             .where(and (

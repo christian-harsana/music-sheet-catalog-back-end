@@ -5,8 +5,10 @@ import { config } from "../config/index";
 
 // Extend Express Request type to include user
 interface JwtUserPayload {
-    userId: string;
+    userId: number;
     email: string;
+    iat?: number;
+    exp?: number;
 }
 
 declare global {
