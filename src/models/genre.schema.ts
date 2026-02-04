@@ -17,7 +17,7 @@ export const createGenreSchema = z.object({
     body: z.object({
         name: z.string()
             .trim()
-            .min(1, 'Genre Name is required')
+            .min(1, 'Genre name is required')
     }),
     user: z.object({
         userId: z.number()

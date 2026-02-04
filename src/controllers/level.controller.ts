@@ -5,38 +5,10 @@ import { level } from '../models/level.schema';
 
 export const addLevel = async (req: Request, res: Response, next: NextFunction) => {
 
-    // TODO: Reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    const userId = parseInt(req.user!.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     });
-    // }
-    // --- END OF TODO ---
-
-    // Get data from the body
-    const { name, description } = req.body;
-
-    // Validate input
-    // if (!name) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Level name is required'
-    //     });
-    // }
-    // --- END OF TODO ---
-
     try {
+
+        const { name, description } = req.body;
+        const userId = req.user!.userId;
 
         // Validate - Check if submitted level exists
         const existingLevel = await db.query.level.findFirst({
@@ -73,27 +45,10 @@ export const addLevel = async (req: Request, res: Response, next: NextFunction) 
 
 export const getLevel = async (req: Request, res: Response, next: NextFunction) => {
 
-    // TODO: Reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    const userId = parseInt(req.user!.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     });
-    // }
-    // --- END OF TODO ---
-
-    // Get all levels
     try {
+
+        const userId = req.user!.userId;
+
         const levels = await db.query.level.findMany({
             where: eq(level.userId, userId),
             orderBy: asc(level.id)
@@ -101,6 +56,7 @@ export const getLevel = async (req: Request, res: Response, next: NextFunction) 
 
         return res.status(200).json({
             success: true,
+            message: 'All levels fetched successfully',
             data: levels
         });
     }
@@ -112,36 +68,13 @@ export const getLevel = async (req: Request, res: Response, next: NextFunction) 
 
 
 export const updateLevel = async (req: Request, res: Response, next:NextFunction) => {
-    
-    // TODO: Reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    // Get parameter and input and validate inputs
-    const { id } = req.params;
-    const { name, description } = req.body;
-
-    // if (!id) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Level Id is required'
-    //     });
-    // }
-
-    // if (!name || name.trim() === "") {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Name is required'
-    //     });
-    // }
-    // --- END OF TODO ---
 
     try {
+
+        // Get parameter and input and validate inputs
+        const { id } = req.params;
+        const { name, description } = req.body;
+
         // Update the data
         const updatedLevel = await db.update(level)
             .set({ 
@@ -169,28 +102,11 @@ export const updateLevel = async (req: Request, res: Response, next:NextFunction
 
 export const deleteLevel = async (req: Request, res: Response, next: NextFunction) => {
 
-    // TODO: Reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    // Get parameter and validate
-    const { id } = req.params;
-
-    // if (!id) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Level id is required'
-    //     })
-    // }
-    // --- END OF TODO ---
-
     // Delete
     try {
+
+        // Get parameter and validate
+        const { id } = req.params;
 
         const deletedLevel = await db.delete(level)
             .where(eq(level.id, parseInt(id)))
