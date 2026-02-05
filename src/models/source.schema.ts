@@ -1,5 +1,5 @@
 import { pgTable, serial, text, integer, index } from 'drizzle-orm/pg-core';
-import { appUser } from './app-user.schema';
+import { appUser } from './auth.schema';
 import { z } from 'zod';
 
 // DB Schema

@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { signUp, login, verify } from '../controllers/auth.controller'
+import { signUp, login, verifyToken } from '../controllers/auth.controller'
+import { loginSchema, signupSchema, tokenVerificationSchema } from '../models/auth.schema';
 import { validationMiddleware } from '../middleware/validation.middleware';
 
 const router = Router();
 
-router.post('/signup', signUp);
-router.post('/login', login);
-router.post('/verify', verify );
+router.post('/signup', validationMiddleware(signupSchema), signUp);
+router.post('/login', validationMiddleware(loginSchema), login);
+router.post('/verify', validationMiddleware(tokenVerificationSchema), verifyToken);
 
 export default router;

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { eq } from 'drizzle-orm';
 import { db } from '../config/db';
-import { appUser } from "../models/app-user.schema";
+import { appUser } from "../models/auth.schema";
 
 export const profile = async (req: Request, res: Response, next: NextFunction) => {
     

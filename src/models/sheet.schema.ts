@@ -2,7 +2,7 @@ import { pgTable, serial, text, integer, index } from 'drizzle-orm/pg-core';
 import { source } from './source.schema';
 import { level } from './level.schema';
 import { genre } from './genre.schema';
-import { appUser } from './app-user.schema';
+import { appUser } from './auth.schema';
 import { z } from 'zod';
 
 export const sheet = pgTable('sheet', {

@@ -42,15 +42,19 @@ export const errorHandlerMiddleware = (
         switch(error.message.trim().toLowerCase()) {
             case 'bad request':
                 errorHttpCode = 400;
+                break;
             
             case 'unauthorized':
                 errorHttpCode = 401;
+                break;
 
             case 'not found':
                 errorHttpCode = 404;
+                break;
 
             case 'conflict': 
                 errorHttpCode = 409;
+                break;
         }
 
         return res.status(errorHttpCode).json({ 
