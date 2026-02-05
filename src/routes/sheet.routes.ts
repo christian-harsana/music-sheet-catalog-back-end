@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { addSheet, getSheet, updateSheet, deleteSheet } from '../controllers/sheet.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { validationMiddleware } from '../middleware/validation.middleware';
-import { createSheetSchema, getSheetSchema, updateSheetSchema, deleteSheetSchema } from '../models/sheet.schema';
+import { createSheetSchema, getSheetSchema, updateSheetSchema, deleteSheetSchema } from '../models/validation/sheet.schema';
 
 
 const router = Router();

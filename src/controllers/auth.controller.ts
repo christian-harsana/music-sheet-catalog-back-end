@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { db } from '../config/db';
-import { appUser } from '../models/auth.schema';
+import { appUser } from '../models/database/auth.schema';
 import { config } from '../config/index';
 import { z, ZodError } from 'zod';
 

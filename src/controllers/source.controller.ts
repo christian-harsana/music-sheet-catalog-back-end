@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
-import { source } from '../models/source.schema';
+import { source } from '../models/database/source.schema';
 
 export const addSource = async (req: Request, res: Response, next: NextFunction) => {
  

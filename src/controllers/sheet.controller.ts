@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
-import { sheet } from '../models/sheet.schema';
-import { genre } from '../models/genre.schema';
-import { level } from '../models/level.schema';
-import { source } from '../models/source.schema';
+import { sheet } from '../models/database/sheet.schema';
+import { genre } from '../models/database/genre.schema';
+import { level } from '../models/database/level.schema';
+import { source } from '../models/database/source.schema';
 
 export const addSheet = async (req: Request, res: Response, next: NextFunction) => {
 

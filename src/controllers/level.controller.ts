@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
-import { level } from '../models/level.schema';
+import { level } from '../models/database/level.schema';
 
 export const addLevel = async (req: Request, res: Response, next: NextFunction) => {
 

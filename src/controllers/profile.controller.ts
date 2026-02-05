@@ -1,17 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { eq } from 'drizzle-orm';
 import { db } from '../config/db';
-import { appUser } from "../models/auth.schema";
+import { appUser } from "../models/database/auth.schema";
 
 export const profile = async (req: Request, res: Response, next: NextFunction) => {
-    
-    // TODO: Reallocate to validation middleware
-    // if (!req.user) {
-    //     return res.status(401).json({ 
-    //         success: false,
-    //         message: 'Unauthenticated user' 
-    //     });
-    // }
 
     try {
         const user = await db.query.appUser.findFirst({
@@ -24,6 +16,7 @@ export const profile = async (req: Request, res: Response, next: NextFunction) =
 
         return res.status(200).json({
             success: true,
+            message: 'User profile succesfully fetched',
             data: { 
                 userId: user.id, 
                 email: user.email,

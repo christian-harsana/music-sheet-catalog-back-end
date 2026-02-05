@@ -1,33 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { eq, and, or, count, isNull } from 'drizzle-orm';
 import { db } from '../config/db';
-import { sheet } from '../models/sheet.schema';
-import { level } from '../models/level.schema';
-import { genre } from '../models/genre.schema';
+import { sheet } from '../models/database/sheet.schema';
+import { level } from '../models/database/level.schema';
+import { genre } from '../models/database/genre.schema';
 
 export const summary = async (req: Request, res: Response, next: NextFunction) => {
 
-    // TODO: Reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    const userId = parseInt(req.user!.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     });
-    // }
-    // --- END OF TODO ---
-
-    // Get summary
     try {
+        const userId = req.user!.userId;
 
         const [sheetsByLevel, sheetsByGenre, sheetsWithMissingData] = await Promise.all([
             db.select({
@@ -69,6 +50,7 @@ export const summary = async (req: Request, res: Response, next: NextFunction) =
 
         return res.status(200).json({
             success: true,
+            message: 'Stat sucessfully fetched',
             data: [sheetsByLevel, sheetsByGenre, sheetsWithMissingData]
         });
     }

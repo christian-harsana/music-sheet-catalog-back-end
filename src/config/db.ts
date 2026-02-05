@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { config } from './index';
-import * as schema from '../models/schema';
+import * as schema from '../models/database/schema';
 
 // Create the connection pool
 // NOTE: pool is for allowing multiple connections to db

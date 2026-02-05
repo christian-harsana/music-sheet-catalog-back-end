@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { addSource, getSource, updateSource, deleteSource } from '../controllers/source.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
-import { createSourceSchema, getSourceSchema, updateSourceSchema, deleteSourceSchema } from '../models/source.schema';
 import { validationMiddleware } from '../middleware/validation.middleware';
+import { createSourceSchema, getSourceSchema, updateSourceSchema, deleteSourceSchema } from '../models/validation/source.schema';
 
 
 const router = Router();

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
-import { genre } from '../models/genre.schema';
+import { genre } from '../models/database/genre.schema';
 import { z } from 'zod';
 
 export const addGenre = async (req: Request, res: Response, next: NextFunction) => {
