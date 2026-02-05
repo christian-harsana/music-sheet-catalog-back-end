@@ -19,7 +19,7 @@ export const createSourceSchema = z.object({
     body: z.object({
         title: z.string()
             .trim()
-            .min(1, 'Source name is required'),
+            .min(1, 'Source title is required'),
         author: z.string().optional(),
         format: z.string().optional()
     }),
@@ -47,7 +47,7 @@ export const updateSourceSchema = z.object({
     body: z.object({
         title: z.string()
             .trim()
-            .min(1, 'Source Name is required'),
+            .min(1, 'Source title is required'),
         author: z.string().optional(),
         format: z.string().optional()
     }),

@@ -7,45 +7,11 @@ import { level } from '../models/level.schema';
 import { source } from '../models/source.schema';
 
 export const addSheet = async (req: Request, res: Response, next: NextFunction) => {
- 
-    // TODO: Reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    const userId = parseInt(req.user!.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     });
-    // }
-    
-
-    // Get data from the body
-    let { title, key, sourceId, levelId, genreId } = req.body;
-
-    // Validate and sanitise input
-    if (!title) {
-        return res.status(400).json({
-            success: false,
-            message: 'Sheet title is required'
-        });
-    }
-
-    key = key?.length < 1 ? null : key;
-    sourceId = sourceId?.length < 1 ? null : sourceId;
-    levelId = levelId?.length < 1 ? null : levelId;
-    genreId = genreId?.length < 1 ? null : genreId;
-    // --- END OF TODO ---
-
 
     try {
+
+        const userId = req.user!.userId;
+        let { title, key, sourceId, levelId, genreId } = req.body;
 
         // Save Sheet
         const newSheet = await db.insert(sheet).values({
@@ -73,26 +39,9 @@ export const addSheet = async (req: Request, res: Response, next: NextFunction) 
 
 export const getSheet = async (req: Request, res: Response, next: NextFunction) => {
 
-    // TODO: Reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    const userId = parseInt(req.user!.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     });
-    // }
-
-    // Get all sheets
     try {
+        const userId = req.user!.userId;
+
         const sheets = await db.select({
                 id: sheet.id,
                 title: sheet.title,
@@ -113,6 +62,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
 
         return res.status(200).json({
             success: true,
+            message: 'All sheets fetched successfully',
             data: sheets
         });
     }
@@ -123,51 +73,13 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
 
 
 export const updateSheet = async (req: Request, res: Response, next: NextFunction) => {
-    
-    // TODO: Reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    const userId = parseInt(req.user!.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     })
-    // }
-
-    // Get parameter and input and validate inputs
-    const { id } = req.params;
-    let { title, key, sourceId, levelId, genreId } = req.body;
-
-    // if (!id) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Sheet Id is required'
-    //     });
-    // }
-
-    // if (!title || title.trim() === "") {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Title is required'
-    //     });
-    // }
-
-    // Sanitise inputs
-    key = key?.length < 1 ? null : key;
-    sourceId = sourceId?.length < 1 ? null : sourceId;
-    levelId = levelId?.length < 1 ? null : levelId;
-    genreId = genreId?.length < 1 ? null : genreId;
-    // --- END OF TODO ---
 
     try {
+
+        const { id } = req.params;
+        const userId = req.user!.userId;
+        let { title, key, sourceId, levelId, genreId } = req.body;
+
         // Update the data
         const updatedSheet = await db.update(sheet)
             .set({ 
@@ -201,37 +113,10 @@ export const updateSheet = async (req: Request, res: Response, next: NextFunctio
 
 export const deleteSheet = async (req: Request, res: Response, next: NextFunction) => {
 
-    // TODO: Reallocate to validation middleware
-    // Verify authenticated user
-    // if (!req.user) {
-    //     return res.status(401).json({
-    //         success: false,
-    //         message: 'Unauthenticated user'
-    //     });
-    // }
-
-    const userId = parseInt(req.user!.userId);
-
-    // if (isNaN(userId)) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Invalid User Id'
-    //     })
-    // }
-
-    // Get parameter and validate
-    const { id } = req.params;
-
-    // if (!id) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: 'Sheet Id is required'
-    //     })
-    // }
-    // --- END OF TODO ---
-
-    // Delete
     try {
+
+        const { id } = req.params;
+        const userId = req.user!.userId;
 
         const deletedSheet = await db.delete(sheet)
             .where(and (
