@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
+import { config } from '../config/index';
 
 export const errorHandlerMiddleware = (
     error: unknown, 
@@ -59,7 +60,7 @@ export const errorHandlerMiddleware = (
 
         return res.status(errorHttpCode).json({ 
             success: false,
-            message: errorCause
+            message: config.nodeEnv === 'production' ? 'An unexpected error occurred. Please try again later.' : errorCause
         });
     }
 
@@ -67,9 +68,6 @@ export const errorHandlerMiddleware = (
     // Unknown error
     return res.status(500).json({ 
         success: false,
-        message: 'Internal Server Error'
+        message: config.nodeEnv === 'production' ? 'An unexpected error occurred. Please try again later.' : 'Internal server error'
     });
-
-    // TODO - Implement environment check for message, only show details on DEV
-    // process.env.NODE_ENV === 'development' ? errorMessage: 'An unexpected error occurred. Please try again later.'
 };
