@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { level } from '../models/database/level.schema';
+import { HttpError } from '../errors';
+
 
 export const addLevel = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -17,9 +19,9 @@ export const addLevel = async (req: Request, res: Response, next: NextFunction) 
                 eq(level.userId, userId)
             )
         });
-
+    
         if (existingLevel) {
-            throw new Error('Conflict', {cause: 'Level name already exists'});
+            throw new HttpError(409, 'Level name already exists');
         }
 
         // Save Level
@@ -85,7 +87,7 @@ export const updateLevel = async (req: Request, res: Response, next:NextFunction
             .returning();
 
         if (!updatedLevel || updatedLevel.length === 0) {
-            throw new Error('Not found', {cause: 'Level not found'});
+            throw new HttpError(404, 'Level not found');
         }
 
         return res.status(200).json({
@@ -113,7 +115,7 @@ export const deleteLevel = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!deletedLevel || deletedLevel.length === 0) {
-            throw new Error('Not found', {cause: 'Level not found'});
+            throw new HttpError(404, 'Level not found');
         }
 
         return res.status(200).json({

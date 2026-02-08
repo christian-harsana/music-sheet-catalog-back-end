@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { source } from '../models/database/source.schema';
+import { HttpError } from '../errors';
 
 export const addSource = async (req: Request, res: Response, next: NextFunction) => {
  
@@ -16,7 +17,7 @@ export const addSource = async (req: Request, res: Response, next: NextFunction)
         });
 
         if (existingSource) {
-            throw new Error('Conflict', { cause: 'Source title already exists' });
+            throw new HttpError(409, 'Source title already exists');
         }
 
         // Save Source
@@ -87,7 +88,7 @@ export const updateSource = async (req: Request, res: Response, next: NextFuncti
             .returning();
 
         if (!updatedSource || updatedSource.length === 0) {
-            throw new Error('Not found', { cause: 'Source not found'});
+            throw new HttpError(404, 'Source not found');
         }
 
         return res.status(200).json({
@@ -117,7 +118,7 @@ export const deleteSource = async (req: Request, res: Response, next:NextFunctio
             .returning();
 
         if (!deletedSource || deletedSource.length === 0) {
-            throw new Error('Not found', { cause: 'Source not found' });
+            throw new HttpError(404, 'Source not found');
         }
 
         return res.status(200).json({

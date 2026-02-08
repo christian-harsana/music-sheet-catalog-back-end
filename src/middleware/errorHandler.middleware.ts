@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { config } from '../config/index';
+import logger from '../utilities/logger';
+import { HttpError } from '../errors';
 
 export const errorHandlerMiddleware = (
     error: unknown, 
@@ -8,66 +10,45 @@ export const errorHandlerMiddleware = (
     next: NextFunction
 ) => {
 
-    if (error instanceof Error) {
+    let errorHttpCode = 500;
+    let errorMessage = 'An unexpected error occurred. Please try again later.';
 
-        // Log error
-        console.error('[Error]', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-            timestamp: new Date().toISOString(),
-            path: req.path,
-            method: req.method
-        });
+    if (error instanceof HttpError) {
+        errorHttpCode = error.statusCode;
+        errorMessage = error.message;
+    }
+    else if (error instanceof Error) {
 
-        // JWT specific errors
+        // JWT errors
         if (error.name === 'JsonWebTokenError') {
-            return res.status(401).json({ 
-                success: false,
-                message: 'Invalid token.' 
-            });
+            errorHttpCode = 401;
+            errorMessage = 'Invalid token.';
         }
-
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ 
-                success: false,
-                message: 'Token expired.' 
-            });
+        else if (error.name === 'TokenExpiredError') {
+            errorHttpCode = 401;
+            errorMessage = 'Token expired.';
         }
-
-
-        // Other errors
-        let errorHttpCode = 500;
-        const errorCause = error.cause ?? error.message;
-
-        switch(error.message.trim().toLowerCase()) {
-            case 'bad request':
-                errorHttpCode = 400;
-                break;
-            
-            case 'unauthorized':
-                errorHttpCode = 401;
-                break;
-
-            case 'not found':
-                errorHttpCode = 404;
-                break;
-
-            case 'conflict': 
-                errorHttpCode = 409;
-                break;
+        else if (config.nodeEnv !== 'production') {
+            errorMessage = error.message;
         }
-
-        return res.status(errorHttpCode).json({ 
-            success: false,
-            message: config.nodeEnv === 'production' ? 'An unexpected error occurred. Please try again later.' : errorCause
-        });
     }
 
 
+    // Log error (server only)
+    logger.error('[Error]', {
+        name: error instanceof Error ? error.name : 'Unknown Error',
+        message: error instanceof Error ? error.message : String(error), // For logging, we want to show the original message
+        stack: error instanceof Error ?  error.stack : undefined,
+        timestamp: new Date().toISOString(),
+        path: req.path,
+        method: req.method,
+        status: errorHttpCode || 500
+    });
+
+
     // Unknown error
-    return res.status(500).json({ 
+    return res.status(errorHttpCode).json({ 
         success: false,
-        message: config.nodeEnv === 'production' ? 'An unexpected error occurred. Please try again later.' : 'Internal server error'
+        message: errorMessage
     });
 };

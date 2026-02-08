@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { config } from "../config/index";
+import { HttpError } from "../errors";
 
 
 // Extend Express Request type to include user
@@ -28,7 +29,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         const token = req.header('Authorization')?.replace('Bearer ', '');
 
         if (!token) {
-            throw new Error('Unauthorized', { cause: 'Access denied. No token provided' });
+            throw new HttpError(401, 'Access denied. No token provided');
         }
         
         const decoded = jwt.verify(token, config.jwt.secret) as JwtUserPayload;

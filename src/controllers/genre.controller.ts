@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { eq, asc, and } from 'drizzle-orm';
 import { db } from '../config/db';
 import { genre } from '../models/database/genre.schema';
-import { z } from 'zod';
+import { HttpError } from '../errors';
 
 export const addGenre = async (req: Request, res: Response, next: NextFunction) => {
  
@@ -20,7 +20,7 @@ export const addGenre = async (req: Request, res: Response, next: NextFunction) 
         });
 
         if (existingGenre) {
-            throw new Error('Conflict', {cause: 'Genre name already exists'});
+            throw new HttpError(409, 'Genere name already exists');
         }
 
         // Save Genre
@@ -86,7 +86,7 @@ export const updateGenre = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!updatedGenre || updatedGenre.length === 0) {
-            throw new Error('Not Found', {cause: 'Genre no found'});
+            throw new HttpError(404, 'Genre no found');
         }
 
         return res.status(200).json({
@@ -115,7 +115,7 @@ export const deleteGenre = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!deletedGenre || deletedGenre.length === 0) {
-            throw new Error('Not Found', {cause: 'Genre not found'});
+            throw new HttpError(404, 'Genre not found');
         }
 
         return res.status(200).json({

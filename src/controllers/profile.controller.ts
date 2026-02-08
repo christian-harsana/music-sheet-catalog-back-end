@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { eq } from 'drizzle-orm';
 import { db } from '../config/db';
 import { appUser } from "../models/database/auth.schema";
+import { HttpError } from "../errors";
 
 export const profile = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -11,7 +12,7 @@ export const profile = async (req: Request, res: Response, next: NextFunction) =
         });
 
         if (!user) {
-            throw new Error('Not found', { cause: 'User not found' });
+            throw new HttpError(404, 'User not found');
         }
 
         return res.status(200).json({

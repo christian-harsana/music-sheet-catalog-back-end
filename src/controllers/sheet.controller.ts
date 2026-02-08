@@ -5,6 +5,7 @@ import { sheet } from '../models/database/sheet.schema';
 import { genre } from '../models/database/genre.schema';
 import { level } from '../models/database/level.schema';
 import { source } from '../models/database/source.schema';
+import { HttpError } from '../errors';
 
 export const addSheet = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -96,7 +97,7 @@ export const updateSheet = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!updatedSheet || updatedSheet.length === 0) {
-            throw new Error('Not found', { cause: 'Sheet not found' });
+            throw new HttpError(404, 'Sheet not found');
         }
 
         return res.status(200).json({
@@ -126,7 +127,7 @@ export const deleteSheet = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!deletedSheet || deletedSheet.length === 0) {
-            throw new Error('Not found', { cause: 'Sheet not found' });
+            throw new HttpError(404, 'Sheet not found');
         }
 
         return res.status(200).json({

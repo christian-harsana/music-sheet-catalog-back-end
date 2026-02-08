@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../config/db';
 import { appUser } from '../models/database/auth.schema';
 import { config } from '../config/index';
-import { z, ZodError } from 'zod';
+import { HttpError } from '../errors';
 
 // SIGN UP
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,7 +19,7 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
         });
 
         if (existingUser) {
-            throw new Error("Conflict", {cause: "User already exists"});
+            throw new HttpError(409, 'User already exists');
         }
 
         // Hash Password (bcrypt)
@@ -58,15 +58,14 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         });
 
         if (!user) {
-            console.log('1');
-            throw new Error('Unauthorized', {cause: 'Invalid email or password'});
+            throw new HttpError(401, 'Invalid email or password');
         }
 
         // Compare Password
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-            throw new Error('Unauthorized', {cause: 'Invalid email or password'});
+            throw new HttpError(401, 'Invalid email or password');
         }
 
         // Sign JWT
@@ -114,7 +113,7 @@ export const verifyToken = async(req: Request, res: Response, next: NextFunction
         });
 
         if (!user) {
-            throw new Error('Not Found', {cause: 'User not found'});
+            throw new HttpError(404, 'User not found');
         }
 
         return res.status(200).json({
