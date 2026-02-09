@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { eq, asc, and } from 'drizzle-orm';
+import { eq, asc, and, count } from 'drizzle-orm';
 import { db } from '../config/db';
 import { sheet } from '../models/database/sheet.schema';
 import { genre } from '../models/database/genre.schema';
@@ -42,7 +42,11 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
 
     try {
         const userId = req.user!.userId;
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 5;
+        const offset = (page - 1) * limit;
 
+        // Get sheets data
         const sheets = await db.select({
                 id: sheet.id,
                 title: sheet.title,
@@ -59,12 +63,32 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
             .leftJoin(level, eq(sheet.levelId, level.id))
             .leftJoin(source, eq(sheet.sourceId, source.id))
             .where(eq(sheet.userId, userId))
+            .limit(limit)
+            .offset(offset)
             .orderBy(asc(sheet.title));
+
+        
+        // Get Total Count
+        const totalCount = await db.select({
+                count: count(sheet.id)
+            })
+            .from(sheet)
+        
+        const total = totalCount[0].count;
+        const totalPages = Math.ceil(total / limit);
 
         return res.status(200).json({
             success: true,
-            message: 'All sheets fetched successfully',
-            data: sheets
+            message: 'Sheets data fetched successfully',
+            data: sheets,
+            pagination: {
+                currentPage: page,
+                pageSize: limit,
+                totalItems: total,
+                totalPages: totalPages,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1
+            }
         });
     }
     catch (error: unknown) {
