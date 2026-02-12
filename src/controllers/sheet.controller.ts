@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { eq, asc, and, count } from 'drizzle-orm';
+import { eq, asc, and, count, or, ilike } from 'drizzle-orm';
 import { db } from '../config/db';
 import { sheet } from '../models/database/sheet.schema';
 import { genre } from '../models/database/genre.schema';
@@ -45,6 +45,41 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 5;
         const offset = (page - 1) * limit;
+        const {keyQuery, levelQuery, genreQuery, searchQuery} = req.query;
+        const searchFilter: string | undefined = searchQuery ? searchQuery as string : undefined;
+        const keyFilter: string | undefined = keyQuery && keyQuery !== 'all' ? keyQuery as string : undefined;
+        const levelFilter: number | undefined = levelQuery && levelQuery !== 'all' ? parseInt(levelQuery as string) : undefined;
+        const genreFilter: number | undefined = genreQuery && genreQuery !== 'all' ? parseInt(genreQuery as string) : undefined;
+
+        // Build WHERE conditions based on filter query
+        const conditions = [eq(sheet.userId, userId)];
+
+        if (keyFilter) {
+            conditions.push(eq(sheet.key, keyFilter))
+        }
+
+        if (levelFilter) {
+            conditions.push(eq(sheet.levelId, levelFilter))
+        }
+
+        if (genreFilter) {
+            conditions.push(eq(sheet.genreId, genreFilter))
+        }
+
+        if (searchFilter && searchFilter.trim().length > 0) {
+            const searchTerm = `%${searchFilter}%`;
+            const searchTermCondition = or(
+                    ilike(sheet.title, searchTerm),
+                    ilike(source.title, searchTerm)
+                );
+
+            if (searchTermCondition) {
+                conditions.push(searchTermCondition);
+            }
+        }
+
+
+        console.log(conditions);
 
         // Get sheets data
         const sheets = await db.select({
@@ -62,7 +97,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
             .leftJoin(genre, eq(sheet.genreId, genre.id))
             .leftJoin(level, eq(sheet.levelId, level.id))
             .leftJoin(source, eq(sheet.sourceId, source.id))
-            .where(eq(sheet.userId, userId))
+            .where(and(...conditions))
             .limit(limit)
             .offset(offset)
             .orderBy(asc(sheet.title));
@@ -73,6 +108,8 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
                 count: count(sheet.id)
             })
             .from(sheet)
+            .leftJoin(source, eq(sheet.sourceId, source.id))
+            .where(and(...conditions))
         
         const total = totalCount[0].count;
         const totalPages = Math.ceil(total / limit);

@@ -33,6 +33,18 @@ export const createSheetSchema = z.object({
             .positive('Limit must be positive number')
             .lte(100, 'Limit must be no more than 100')
             .optional(),
+        searchFilter: z.string()
+            .trim()
+            .optional(),
+        keyFilter: z.string()
+            .trim()
+            .optional(),
+        levelFilter: z.string()
+            .trim()
+            .optional(),
+        genreFilter: z.string()
+            .trim()
+            .optional(),
     }),
     user: z.object({
         userId: z.number()
