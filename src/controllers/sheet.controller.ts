@@ -43,7 +43,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
     try {
         const userId = req.user!.userId;
         const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 5;
+        const limit = parseInt(req.query.limit as string) || 10;
         const offset = (page - 1) * limit;
         const {keyQuery, levelQuery, genreQuery, searchQuery} = req.query;
         const searchFilter: string | undefined = searchQuery ? searchQuery as string : undefined;
@@ -78,9 +78,6 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
             }
         }
 
-
-        console.log(conditions);
-
         // Get sheets data
         const sheets = await db.select({
                 id: sheet.id,
@@ -109,7 +106,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
             })
             .from(sheet)
             .leftJoin(source, eq(sheet.sourceId, source.id))
-            .where(and(...conditions))
+            .where(and(...conditions));
         
         const total = totalCount[0].count;
         const totalPages = Math.ceil(total / limit);

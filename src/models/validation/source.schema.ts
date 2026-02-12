@@ -21,6 +21,17 @@ export const getSourceSchema = z.object({
         userId: z.number()
             .int('User Id must be an integer')
             .positive('User Id must be positive')
+    }),
+    query: z.object({
+        page: z.coerce.number()
+            .int('Page must be an integer')
+            .positive('Page must be positive number')
+            .optional(),
+        limit: z.coerce.number()
+            .int('Limit must be an integer')
+            .positive('Limit must be positive number')
+            .lte(100, 'Limit must be no more than 100')
+            .optional(),
     })
 });
 
