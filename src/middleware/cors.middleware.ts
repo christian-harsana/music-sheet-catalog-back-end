@@ -4,6 +4,9 @@ import { config } from '../config/index';
 export const corsMiddleware = cors({
     origin: function(origin, callback) {
 
+        console.log('Allowed origins:', process.env.ALLOWED_ORIGINS);
+        console.log('Allowed originss:', config.cors.allowedOrigins);
+
         // Allow requests with no origin (mobile apps, Postman, etc.)
         if (!origin) return callback(null, true);
 
