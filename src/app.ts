@@ -7,8 +7,6 @@ import helmet from 'helmet';
 
 const app: Express = express();
 
-console.log('Allowed origins:', process.env.ALLOWED_ORIGINS);
-
 // For request logging
 app.use(morganMiddleware);
 
