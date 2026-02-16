@@ -13,11 +13,11 @@ app.use(morganMiddleware);
 // To avoid giving information of the Back-end
 app.disable('x-powered-by');
 
-// Helmet - For setting security-related HTTP headers
-app.use(helmet());
-
 // Enable CORS - NOTE: Put BEFORE routes
 app.use(corsMiddleware);
+
+// Helmet - For setting security-related HTTP headers
+app.use(helmet());
 
 // This is required to parse JSON bodies
 app.use(express.json());
