@@ -45,8 +45,6 @@ export const errorHandlerMiddleware = (
         status: errorHttpCode || 500
     });
 
-
-    // Unknown error
     return res.status(errorHttpCode).json({ 
         success: false,
         message: errorMessage
