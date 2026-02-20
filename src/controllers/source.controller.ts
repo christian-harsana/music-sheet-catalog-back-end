@@ -13,7 +13,10 @@ export const addSource = async (req: Request, res: Response, next: NextFunction)
 
         // Validate - Check if submitted source exists
         const existingSource = await db.query.source.findFirst({
-            where: eq(source.title, title)
+            where: and(
+                eq(source.title, title),
+                eq(source.userId, userId)
+            )
         });
 
         if (existingSource) {

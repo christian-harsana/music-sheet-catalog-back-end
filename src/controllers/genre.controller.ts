@@ -20,7 +20,7 @@ export const addGenre = async (req: Request, res: Response, next: NextFunction) 
         });
 
         if (existingGenre) {
-            throw new HttpError(409, 'Genere name already exists');
+            throw new HttpError(409, 'Genre name already exists');
         }
 
         // Save Genre
