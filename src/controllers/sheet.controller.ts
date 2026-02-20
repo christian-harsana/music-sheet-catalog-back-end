@@ -12,15 +12,17 @@ export const addSheet = async (req: Request, res: Response, next: NextFunction) 
     try {
 
         const userId = req.user!.userId;
-        let { title, key, sourceId, levelId, genreId } = req.body;
+        let { title, key, composer, sourceId, levelId, genreId, examPiece } = req.body;
 
         // Save Sheet
         const newSheet = await db.insert(sheet).values({
             title: title?.trim(),
             key: key,
+            composer: composer,
             sourceId: sourceId,
             levelId: levelId,
             genreId: genreId,
+            examPiece: examPiece,
             userId: userId
         }).returning();
 
@@ -45,11 +47,12 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const offset = (page - 1) * limit;
-        const {keyQuery, levelQuery, genreQuery, searchQuery} = req.query;
+        const {keyQuery, levelQuery, genreQuery, examPieceQuery, searchQuery} = req.query;
         const searchFilter: string | undefined = searchQuery ? searchQuery as string : undefined;
         const keyFilter: string | undefined = keyQuery && keyQuery !== 'all' ? keyQuery as string : undefined;
         const levelFilter: number | undefined = levelQuery && levelQuery !== 'all' ? parseInt(levelQuery as string) : undefined;
         const genreFilter: number | undefined = genreQuery && genreQuery !== 'all' ? parseInt(genreQuery as string) : undefined;
+        const examPieceFilter: boolean | undefined = examPieceQuery === 'true' ? true : false; 
 
         // Build WHERE conditions based on filter query
         const conditions = [eq(sheet.userId, userId)];
@@ -66,11 +69,16 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
             conditions.push(eq(sheet.genreId, genreFilter))
         }
 
+        if (examPieceQuery) {
+            conditions.push(eq(sheet.examPiece, examPieceFilter))
+        }
+
         if (searchFilter && searchFilter.trim().length > 0) {
             const searchTerm = `%${searchFilter}%`;
             const searchTermCondition = or(
                     ilike(sheet.title, searchTerm),
-                    ilike(source.title, searchTerm)
+                    ilike(sheet.composer, searchTerm),
+                    ilike(source.title, searchTerm),
                 );
 
             if (searchTermCondition) {
@@ -83,12 +91,14 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
                 id: sheet.id,
                 title: sheet.title,
                 key: sheet.key,
+                composer: sheet.composer,
                 sourceId: sheet.sourceId,
                 sourceTitle: source.title,
                 levelId: sheet.levelId,
                 levelName: level.name,
                 genreId: sheet.genreId,
-                genreName: genre.name
+                genreName: genre.name,
+                examPiece: sheet.examPiece
             })
             .from(sheet)
             .leftJoin(genre, eq(sheet.genreId, genre.id))
@@ -137,16 +147,18 @@ export const updateSheet = async (req: Request, res: Response, next: NextFunctio
 
         const { id } = req.params;
         const userId = req.user!.userId;
-        let { title, key, sourceId, levelId, genreId } = req.body;
+        let { title, key, composer, sourceId, levelId, genreId, examPiece } = req.body;
 
         // Update the data
         const updatedSheet = await db.update(sheet)
             .set({ 
                 title: title.trim(),
                 key: key,
+                composer: composer,
                 sourceId: sourceId,
                 levelId: levelId,
-                genreId : genreId
+                genreId : genreId,
+                examPiece: examPiece
             })
             .where(and(
                 eq(sheet.id, parseInt(id)),
