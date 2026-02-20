@@ -98,7 +98,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
                 levelName: level.name,
                 genreId: sheet.genreId,
                 genreName: genre.name,
-                examPiece: sheet.examPiece
+                examPiece: sheet.examPiece ?? false
             })
             .from(sheet)
             .leftJoin(genre, eq(sheet.genreId, genre.id))
