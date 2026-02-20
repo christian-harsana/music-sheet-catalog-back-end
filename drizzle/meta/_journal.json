@@ -36,6 +36,13 @@
       "when": 1768946528084,
       "tag": "0004_even_fenris",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771559031466,
+      "tag": "0005_heavy_tusk",
+      "breakpoints": true
     }
   ]
 }

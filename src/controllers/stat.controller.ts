@@ -4,7 +4,7 @@ import { db } from '../config/db';
 import { sheet } from '../models/database/sheet.schema';
 import { level } from '../models/database/level.schema';
 import { genre } from '../models/database/genre.schema';
-import { config } from '../config';
+
 
 export const summary = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -44,7 +44,9 @@ export const summary = async (req: Request, res: Response, next: NextFunction) =
                             isNull(sheet.levelId),
                             isNull(sheet.genreId),
                             isNull(sheet.key),
-                            eq(sheet.key, "")
+                            eq(sheet.key, ""),
+                            isNull(sheet.composer),
+                            eq(sheet.composer, "")
                         )
                     )
                 )
