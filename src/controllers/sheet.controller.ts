@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { eq, asc, and, count, or, ilike } from 'drizzle-orm';
+import { eq, asc, and, count, or, ilike, sql } from 'drizzle-orm';
 import { db } from '../config/db';
 import { sheet } from '../models/database/sheet.schema';
 import { genre } from '../models/database/genre.schema';
@@ -98,7 +98,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
                 levelName: level.name,
                 genreId: sheet.genreId,
                 genreName: genre.name,
-                examPiece: sheet.examPiece ?? false
+                examPiece: sql<boolean>`coalesce(${sheet.examPiece}, false)`
             })
             .from(sheet)
             .leftJoin(genre, eq(sheet.genreId, genre.id))
