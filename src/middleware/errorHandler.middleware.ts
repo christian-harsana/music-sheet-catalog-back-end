@@ -38,12 +38,16 @@ export const errorHandlerMiddleware = (
     logger.error('[Error]', {
         name: error instanceof Error ? error.name : 'Unknown Error',
         message: error instanceof Error ? error.message : String(error), // For logging, we want to show the original message
+        rawError: !(error instanceof Error) ? JSON.stringify(error, Object.getOwnPropertyNames(error)) : undefined,
         stack: error instanceof Error ?  error.stack : undefined,
         timestamp: new Date().toISOString(),
         path: req.path,
         method: req.method,
         status: errorHttpCode || 500
     });
+
+    // log whatever it is, even if not an Error
+    console.error('Unexpected error type:', typeof error, JSON.stringify(error));
 
     return res.status(errorHttpCode).json({ 
         success: false,
