@@ -91,6 +91,31 @@ export const getSource = async (req: Request, res: Response, next: NextFunction)
     }
 };
 
+export const getSourceLookup = async (req: Request, res: Response, next: NextFunction) => {
+
+    try {
+        const userId = req.user!.userId;
+
+        // Get source lookup data
+        const sourceLookup = await db.select({
+                id: source.id,
+                title: source.title
+            })
+            .from(source)
+            .where(eq(source.userId, userId))
+            .orderBy(asc(source.title));
+
+        return res.status(200).json({
+            success: true,
+            message: 'Sources lookup data fetched successfully',
+            data: sourceLookup,
+        });
+    }
+
+    catch (error: unknown) {
+        next(error);
+    }
+};
 
 export const updateSource = async (req: Request, res: Response, next: NextFunction) => {
     

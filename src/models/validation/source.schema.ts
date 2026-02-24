@@ -35,6 +35,14 @@ export const getSourceSchema = z.object({
     })
 });
 
+export const getSourceLookupSchema = z.object({
+    user: z.object({
+        userId: z.number()
+            .int('User Id must be an integer')
+            .positive('User Id must be positive')
+    })
+});
+
 export const updateSourceSchema = z.object({
     params: z.object({
         id: z.string()
