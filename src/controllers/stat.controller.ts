@@ -4,14 +4,22 @@ import { db } from '../config/db';
 import { sheet } from '../models/database/sheet.schema';
 import { level } from '../models/database/level.schema';
 import { genre } from '../models/database/genre.schema';
-
+import { source } from '../models/database/source.schema';
 
 export const summary = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
         const userId = req.user!.userId;
 
-        const [sheetsByLevel, sheetsByGenre, sheetsWithMissingData] = await Promise.all([
+        const [
+            sheetsByLevel, 
+            sheetsByGenre, 
+            sheetsWithMissingData, 
+            sheetsTotal,
+            sourcesTotal, 
+            levelsTotal, 
+            genresTotal] = await Promise.all([
+
             db.select({
                     levelId: sheet.levelId,
                     levelName: level.name,
@@ -49,13 +57,41 @@ export const summary = async (req: Request, res: Response, next: NextFunction) =
                             eq(sheet.composer, "")
                         )
                     )
-                )
+                ),
+            db.select({
+                    count: count(sheet.id)
+                })
+                .from(sheet)
+                .where(eq(sheet.userId, userId)),
+            db.select({
+                    count: count(source.id)
+                })
+                .from(source)
+                .where(eq(source.userId, userId)),
+            db.select({
+                    count: count(level.id)
+                })
+                .from(level)
+                .where(eq(level.userId, userId)),
+            db.select({
+                    count: count(genre.id)
+                })
+                .from(genre)
+                .where(eq(genre.userId, userId)),
         ]);
 
         return res.status(200).json({
             success: true,
-            message: 'Stat sucessfully fetched',
-            data: [sheetsByLevel, sheetsByGenre, sheetsWithMissingData]
+            message: 'Stats sucessfully fetched',
+            data: [
+                sheetsByLevel, 
+                sheetsByGenre, 
+                sheetsWithMissingData, 
+                sheetsTotal, 
+                sourcesTotal, 
+                levelsTotal, 
+                genresTotal
+            ]
         });
     }
 
