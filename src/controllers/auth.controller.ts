@@ -108,7 +108,7 @@ export const verifyToken = async(req: Request, res: Response, next: NextFunction
         const decoded = jwt.verify(token, config.jwt.secret) as JwtPayload;
        
         // Update the user
-        const  user = await db.query.appUser.findFirst({
+        const user = await db.query.appUser.findFirst({
             where: eq(appUser.id, parseInt(decoded.userId))
         });
 
