@@ -86,7 +86,7 @@ export const updateGenre = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!updatedGenre || updatedGenre.length === 0) {
-            throw new HttpError(404, 'Genre no found');
+            throw new HttpError(404, 'Genre not found');
         }
 
         return res.status(200).json({
