@@ -1,14 +1,15 @@
 import { Request, Response } from 'express';
 import { db } from '../config/db';
-import { addGenre, getGenre, updateGenre, deleteGenre } from './genre.controller';
+import { addLevel, getLevel, updateLevel, deleteLevel } from './level.controller';
 
 jest.mock('../config/db');
 
 const mockedDb = jest.mocked(db);
 
-const mockGenre = {
+const mockLevel = {
     id: 1,
-    name: 'Genre 1',
+    name: 'Level 1',
+    description: 'Level 1 description',
     userId: 1
 }
 
@@ -25,128 +26,128 @@ beforeEach(() => {
     next = jest.fn();
 });
 
-describe('Add genre controller', () => {
+describe('Add level controller', () => {
 
     beforeEach(() => {
-        req = {body: {name: 'new genre'}, user: {userId: 1}} as Request;
+        req = {body: {name: 'new level'}, user: {userId: 1}} as Request;
     });
 
-    test('Return 201 when new genre successfully added', async() => {
+    test('Return 201 when new level successfully added', async() => {
 
         // ARRANGE
-        mockedDb.query.genre.findFirst.mockResolvedValue(undefined);
+        mockedDb.query.level.findFirst.mockResolvedValue(undefined);
         (mockedDb.insert as jest.Mock).mockReturnValue({
             values: jest.fn().mockReturnValue({
-                returning: jest.fn().mockResolvedValue([mockGenre])
+                returning: jest.fn().mockResolvedValue([mockLevel])
             })    
         });
 
         // ACT
-        await addGenre(req, res, next);
+        await addLevel(req, res, next);
 
         // ASSERT
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'New genre added successfully',
-            data: mockGenre
+            message: 'New level added successfully',
+            data: mockLevel
         });
     });
 
 
-    test('Return 409 when genre already exist', async() => {
+    test('Return 409 when level already exist', async() => {
 
         // ARRANGE
-        mockedDb.query.genre.findFirst.mockResolvedValue(mockGenre);
+        mockedDb.query.level.findFirst.mockResolvedValue(mockLevel);
 
         // ACT
-        await addGenre(req, res, next);
+        await addLevel(req, res, next);
 
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 409,
-            message: 'Genre name already exists'
+            message: 'Level name already exists'
         }));
     });
 
 });
 
-describe('Get genre controller', () => {
+describe('Get level controller', () => {
 
     beforeEach(() => {
         req = {user: {userId: 1}} as Request;
     });
 
-    test('Return 200 when genres successfully fetched', async() => {
+    test('Return 200 when levels successfully fetched', async() => {
 
         // ARRANGE
-        const mockGenres = [
-            {id: 1, name: 'genre 1', userId: 1},
-            {id: 2, name: 'genre 2', userId: 1},
+        const mockLevels = [
+            {id: 1, name: 'Level 1', description: 'Level 1 description', userId: 1},
+            {id: 2, name: 'Level 2', description: 'Level 2 description', userId: 1},
         ]
         
-        mockedDb.query.genre.findMany.mockResolvedValue(mockGenres);
+        mockedDb.query.level.findMany.mockResolvedValue(mockLevels);
 
         // ACT
-        await getGenre(req, res, next);
+        await getLevel(req, res, next);
 
         // ASSERT
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'All genres fetched successfully',
-            data: mockGenres
+            message: 'All levels fetched successfully',
+            data: mockLevels
         });
     });
 
-    test('Return 200 when genre fetch return no result', async() => {
+    test('Return 200 when level fetch return no result', async() => {
 
         // ARRANGE
-        mockedDb.query.genre.findMany.mockResolvedValue([]);
+        mockedDb.query.level.findMany.mockResolvedValue([]);
 
         // ACT
-        await getGenre(req, res, next);
+        await getLevel(req, res, next);
 
         // ASSERT
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'All genres fetched successfully',
+            message: 'All levels fetched successfully',
             data: []
         });
     });
 });
 
-describe('Update genre controller', () => {
+describe('Update level controller', () => {
 
     beforeEach(() => {
-        req = {body: {name: 'updated genre'}, user: {userId: 1}, params: {id: '1'}} as unknown as Request;
+        req = {body: {name: 'updated level'}, user: {userId: 1}, params: {id: '1'}} as unknown as Request;
     });
 
-    test('Return 200 when genres successfully updated', async() => {
+    test('Return 200 when level successfully updated', async() => {
 
         // ARRANGE
         (mockedDb.update as jest.Mock).mockReturnValue({
             set: jest.fn().mockReturnValue({
                 where: jest.fn().mockReturnValue({
-                    returning: jest.fn().mockResolvedValue([mockGenre])
+                    returning: jest.fn().mockResolvedValue([mockLevel])
                 })
             })
         });
 
         // ACT
-        await updateGenre(req, res, next);
+        await updateLevel(req, res, next);
 
         // ASSERT
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
             message: 'Update is successful',
-            data: mockGenre
+            data: mockLevel
         });
     });
 
-    test('Return 404 when genre is not found', async() => {
+    test('Return 404 when level is not found', async() => {
 
         // ARRANGE
         (mockedDb.update as jest.Mock).mockReturnValue({
@@ -158,45 +159,45 @@ describe('Update genre controller', () => {
         });
 
         // ACT
-        await updateGenre(req, res, next);
+        await updateLevel(req, res, next);
 
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Genre not found'
+            message: 'Level not found'
         }));
     });
 
 });
 
-describe('Delete genre controller', () => {
+describe('Delete level controller', () => {
 
     beforeEach(() => {
         req = {user: {userId: 1}, params: {id: '1'}} as unknown as Request;
     });
 
-    test('Return 200 when genre successfully deleted', async() => {
+    test('Return 200 when level successfully deleted', async() => {
 
         // ARRANGE
         (mockedDb.delete as jest.Mock).mockReturnValue({
             where: jest.fn().mockReturnValue({
-                returning: jest.fn().mockResolvedValue([mockGenre])
+                returning: jest.fn().mockResolvedValue([mockLevel])
             })
         });
 
         // ACT
-        await deleteGenre(req, res, next);
+        await deleteLevel(req, res, next);
 
         // ASSERT
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Genre successfully deleted'
+            message: 'Level successfully deleted'
         });
     });
 
 
-    test('Return 404 when genre is not found', async() => {
+    test('Return 404 when level is not found', async() => {
 
         // ARRANGE
         (mockedDb.delete as jest.Mock).mockReturnValue({
@@ -206,12 +207,12 @@ describe('Delete genre controller', () => {
         });
 
         // ACT
-        await deleteGenre(req, res, next);
+        await deleteLevel(req, res, next);
 
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Genre not found'
+            message: 'Level not found'
         }));
     });
 
