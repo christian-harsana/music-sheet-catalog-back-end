@@ -4,7 +4,7 @@ import { db } from '../config/db';
 import { appUser } from "../models/database/auth.schema";
 import { HttpError } from "../errors";
 
-export const profile = async (req: Request, res: Response, next: NextFunction) => {
+export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
         const user = await db.query.appUser.findFirst({
