@@ -27,7 +27,7 @@ let next: jest.Mock;
 
 beforeEach(() => {
     // Reset mocks between tests
-    jest.clearAllMocks();
+    jest.resetAllMocks();
 
     // Define repeated values
     res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;

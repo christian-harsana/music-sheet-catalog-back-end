@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../config/db';
 import { addSource, getSource, getSourceLookup, updateSource, deleteSource } from './source.controller';
-import { assert } from 'console';
 
 jest.mock('../config/db');
 
@@ -21,7 +20,7 @@ let next: jest.Mock;
 
 beforeEach(() => {
     // Reset mocks between tests
-    jest.clearAllMocks();
+    jest.resetAllMocks();
 
     // Define repeated values
     res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
@@ -77,7 +76,7 @@ describe('Add source controller', () => {
 describe('Get source controller', () => {
 
     beforeEach(() => {
-        req = {user: {userId: 1}, query: {page: 1, limit: 10}} as unknown as Request;
+        req = {user: {userId: 1}, query: {page: '1', limit: '10'}} as unknown as Request;
     });
 
     test('Return 200 when sources successfully fetched', async() => {
@@ -119,6 +118,12 @@ describe('Get source controller', () => {
 
         // ARRANGE
         mockedDb.query.source.findMany.mockResolvedValue([]);
+        (mockedDb.select as jest.Mock).mockReturnValue({
+            from: jest.fn().mockReturnValue({
+                where: jest.fn().mockResolvedValue([{count: 0}])
+            })
+        });
+
 
         // ACT
         await getSource(req, res, next);
@@ -132,8 +137,8 @@ describe('Get source controller', () => {
             pagination: {
                 currentPage: 1,
                 pageSize: 10,
-                totalItems: 2,
-                totalPages: 1,
+                totalItems: 0,
+                totalPages: 0,
                 hasNextPage: false,
                 hasPreviousPage: false
             }
