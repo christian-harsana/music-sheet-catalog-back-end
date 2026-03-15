@@ -6,7 +6,7 @@ import { level } from '../models/database/level.schema';
 import { genre } from '../models/database/genre.schema';
 import { source } from '../models/database/source.schema';
 
-export const summary = async (req: Request, res: Response, next: NextFunction) => {
+export const getStats = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
         const userId = req.user!.userId;
