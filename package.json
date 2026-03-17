@@ -8,8 +8,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "jest --config jest.config.js",
+    "test:watch": "jest --config jest.config.js --watch",
     "build": "tsc",
     "start": "node dist/index.js"
   },
@@ -38,6 +38,7 @@
     "@types/pg": "^8.15.6",
     "drizzle-kit": "^0.31.7",
     "jest": "^30.2.0",
+    "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
