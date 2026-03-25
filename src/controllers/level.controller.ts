@@ -34,7 +34,7 @@ export const addLevel = async (req: Request, res: Response, next: NextFunction) 
         // Return Success
         return res.status(201).json({
             success: true,
-            message: 'New level added successfully',
+            message: 'New level added successfully.',
             data: newLevel[0]
         });
 
@@ -58,7 +58,7 @@ export const getLevel = async (req: Request, res: Response, next: NextFunction) 
 
         return res.status(200).json({
             success: true,
-            message: 'All levels fetched successfully',
+            message: 'All levels fetched successfully.',
             data: levels
         });
     }
@@ -87,12 +87,12 @@ export const updateLevel = async (req: Request, res: Response, next:NextFunction
             .returning();
 
         if (!updatedLevel || updatedLevel.length === 0) {
-            throw new HttpError(404, 'Level not found');
+            throw new HttpError(404, 'Level not found.');
         }
 
         return res.status(200).json({
             success: true,
-            message: 'Update is successful',
+            message: 'Update is successful.',
             data: updatedLevel[0]
         });
     }
@@ -115,12 +115,12 @@ export const deleteLevel = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!deletedLevel || deletedLevel.length === 0) {
-            throw new HttpError(404, 'Level not found');
+            throw new HttpError(404, 'Level not found.');
         }
 
         return res.status(200).json({
             success: true,
-            message: 'Level successfully deleted'
+            message: 'Level successfully deleted.'
         });
 
     }
