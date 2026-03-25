@@ -3,13 +3,13 @@ import app from '../../src/app';
 import { createTestUserAndGetToken } from '../helpers/auth.helper';
 import { deleteTestUser, closeDbConnection } from '../helpers/db.helper';
 import { db } from '../../src/config/db';
-import { source } from '../../src/models/database/source.schema';
+import { sheet } from '../../src/models/database/sheet.schema';
 import { eq } from 'drizzle-orm';
 
-describe('source API', () => {
+describe('Sheet API', () => {
 
     let token: string;
-    let sourceId: number;
+    let sheetId: number;
 
     beforeAll(async () => {
         token = await createTestUserAndGetToken();
@@ -17,22 +17,22 @@ describe('source API', () => {
 
     afterAll(async () => {
 
-        // For deleting the created source when delete test failed
-        if (sourceId) {
-            await db.delete(source).where(eq(source.id, sourceId));
+        // For deleting the created sheet when delete test failed
+        if (sheetId) {
+            await db.delete(sheet).where(eq(sheet.id, sheetId));
         }
 
         await deleteTestUser();
         await closeDbConnection();
     });
 
-    describe('POST /source', () => {
+    describe('POST /sheet', () => {
 
         it('should return 401 when no token is provided', async() => {
 
             const res = await request(app)
-                .post('/api/source')
-                .send({title: 'Test source'});
+                .post('/api/sheet')
+                .send({title: 'Test sheet'});
             
             expect(res.status).toBe(401);
             expect(res.body).toHaveProperty('success', false);
@@ -42,7 +42,7 @@ describe('source API', () => {
         it('should return 400 when title is missing', async() => {
 
             const res = await request(app)
-                .post('/api/source')
+                .post('/api/sheet')
                 .set('Authorization', `Bearer ${token}`)
                 .send({});
             
@@ -51,160 +51,129 @@ describe('source API', () => {
             expect(res.body).toHaveProperty('message', 'Validation error.');
         });
 
-        it('should return 201 when adding new source successfully', async() => {
+        it('should return 201 when adding new sheet successfully', async() => {
 
             const res = await request(app)
-                .post('/api/source')
+                .post('/api/sheet')
                 .set('Authorization', `Bearer ${token}`)
-                .send({title: 'Test source'});
+                .send({title: 'Test sheet'});
             
             expect(res.status).toBe(201);
             expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'New source added successfully.');
+            expect(res.body).toHaveProperty('message', 'New sheet added successfully.');
             expect(res.body).toHaveProperty('data.id');
-            expect(res.body).toHaveProperty('data.title', 'Test source');
+            expect(res.body).toHaveProperty('data.title', 'Test sheet');
 
-            sourceId = res.body.data.id;
+            sheetId = res.body.data.id;
         });
 
     });
 
-    describe('GET /source', () => {
+    describe('GET /sheet', () => {
 
         it('should return 401 when no token is provided', async() => {
 
             const res = await request(app)
-                .get('/api/source');
+                .get('/api/sheet');
             
             expect(res.status).toBe(401);
             expect(res.body).toHaveProperty('success', false);
             expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
         });
 
-        it('should return 200 and return source data', async() => {
+        it('should return 200 and return sheet data', async() => {
 
             const res = await request(app)
-                .get('/api/source')
+                .get('/api/sheet')
                 .set('Authorization', `Bearer ${token}`);
 
-            const createdSource = res.body.data.find((source: any) => source.id === sourceId);
+            const createdsheet = res.body.data.find((sheet: any) => sheet.id === sheetId);
 
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'Sources data fetched successfully.');
+            expect(res.body).toHaveProperty('message', 'Sheets data fetched successfully.');
             expect(res.body).toHaveProperty('data');
             expect(res.body).toHaveProperty('pagination');
-            expect(createdSource).toBeDefined();
-            expect(createdSource.title).toBe('Test source');
+            expect(createdsheet).toBeDefined();
+            expect(createdsheet.title).toBe('Test sheet');
         });
 
     });
 
 
-    describe('GET /source/lookup', () => {
+    describe('PUT /sheet', () => {
 
         it('should return 401 when no token is provided', async() => {
 
             const res = await request(app)
-                .get('/api/source/lookup');
+                .put(`/api/sheet/${sheetId}`)
+                .send({title: 'Updated sheet'});
             
             expect(res.status).toBe(401);
             expect(res.body).toHaveProperty('success', false);
             expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
         });
 
-        it('should return 200 and return source lookup data', async() => {
-
-            const res = await request(app)
-                .get('/api/source/lookup')
-                .set('Authorization', `Bearer ${token}`);
-
-            const createdSource = res.body.data.find((source: any) => source.id === sourceId);
-
-            expect(res.status).toBe(200);
-            expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'Sources lookup data fetched successfully.');
-            expect(res.body).toHaveProperty('data');
-            expect(createdSource).toBeDefined();
-            expect(createdSource.title).toBe('Test source');
-        });
-
-    });
-
-
-    describe('PUT /source', () => {
-
-        it('should return 401 when no token is provided', async() => {
-
-            const res = await request(app)
-                .put(`/api/source/${sourceId}`)
-                .send({title: 'Updated source'});
-            
-            expect(res.status).toBe(401);
-            expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
-        });
-
-        it('should return 404 when source does not exist', async () => {
+        it('should return 404 when sheet does not exist', async () => {
              const res = await request(app)
-                .delete(`/api/source/9999`)
+                .delete(`/api/sheet/9999`)
                 .set('Authorization', `Bearer ${token}`)
-                .send({title: 'Updated source'});
+                .send({title: 'Updated sheet'});
             
             expect(res.status).toBe(404);
             expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Source not found.');
+            expect(res.body).toHaveProperty('message', 'Sheet not found.');
         });
 
-        it('should return 200 and update a source', async() => {
+        it('should return 200 and update a sheet', async() => {
 
             const res = await request(app)
-                    .put(`/api/source/${sourceId}`)
+                    .put(`/api/sheet/${sheetId}`)
                     .set('Authorization', `Bearer ${token}`)
-                    .send({title: 'Updated source'});
+                    .send({title: 'Updated sheet'});
 
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('success', true);
             expect(res.body).toHaveProperty('message', 'Update is successful.');
-            expect(res.body).toHaveProperty('data.title', 'Updated source');
+            expect(res.body).toHaveProperty('data.title', 'Updated sheet');
         });
     });
 
 
-    describe('DELETE /source', () => {
+    describe('DELETE /sheet', () => {
 
         it('should return 401 when no token is provided', async() => {
 
             const res = await request(app)
-                .delete(`/api/source/${sourceId}`);
+                .delete(`/api/sheet/${sheetId}`);
             
             expect(res.status).toBe(401);
             expect(res.body).toHaveProperty('success', false);
             expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
         });
 
-        it('should return 404 when source does not exist', async () => {
+        it('should return 404 when sheet does not exist', async () => {
              const res = await request(app)
-                .delete(`/api/source/9999`)
+                .delete(`/api/sheet/9999`)
                 .set('Authorization', `Bearer ${token}`);
             
             expect(res.status).toBe(404);
             expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Source not found.');
+            expect(res.body).toHaveProperty('message', 'Sheet not found.');
         });
 
-        it('should return 200 and delete a source', async() => {
+        it('should return 200 and delete a sheet', async() => {
 
             const res = await request(app)
-                    .delete(`/api/source/${sourceId}`)
+                    .delete(`/api/sheet/${sheetId}`)
                     .set('Authorization', `Bearer ${token}`);
 
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'Source successfully deleted.');
+            expect(res.body).toHaveProperty('message', 'Sheet successfully deleted.');
         
             // Reset - So Afterall cleanup skip it
-            sourceId = 0;
+            sheetId = 0;
         });
     }) 
 
