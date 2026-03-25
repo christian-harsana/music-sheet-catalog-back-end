@@ -32,7 +32,7 @@ export const addGenre = async (req: Request, res: Response, next: NextFunction) 
         // Return Success
         return res.status(201).json({
             success: true,
-            message: 'New genre added successfully',
+            message: 'New genre added successfully.',
             data: newGenre[0]
         });
 
@@ -57,7 +57,7 @@ export const getGenre = async (req: Request, res: Response, next: NextFunction) 
 
         return res.status(200).json({
             success: true,
-            message: 'All genres fetched successfully',
+            message: 'All genres fetched successfully.',
             data: genres
         });
     }
@@ -86,12 +86,12 @@ export const updateGenre = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!updatedGenre || updatedGenre.length === 0) {
-            throw new HttpError(404, 'Genre not found');
+            throw new HttpError(404, 'Genre not found.');
         }
 
         return res.status(200).json({
             success: true,
-            message: 'Update is successful',
+            message: 'Update is successful.',
             data: updatedGenre[0]
         });
     }
@@ -115,12 +115,12 @@ export const deleteGenre = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!deletedGenre || deletedGenre.length === 0) {
-            throw new HttpError(404, 'Genre not found');
+            throw new HttpError(404, 'Genre not found.');
         }
 
         return res.status(200).json({
             success: true,
-            message: 'Genre successfully deleted'
+            message: 'Genre successfully deleted.'
         });
 
     }

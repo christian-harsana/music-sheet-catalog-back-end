@@ -48,7 +48,7 @@ describe('Add genre controller', () => {
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'New genre added successfully',
+            message: 'New genre added successfully.',
             data: mockGenre
         });
     });
@@ -94,7 +94,7 @@ describe('Get genre controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'All genres fetched successfully',
+            message: 'All genres fetched successfully.',
             data: mockGenres
         });
     });
@@ -111,7 +111,7 @@ describe('Get genre controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'All genres fetched successfully',
+            message: 'All genres fetched successfully.',
             data: []
         });
     });
@@ -141,7 +141,7 @@ describe('Update genre controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Update is successful',
+            message: 'Update is successful.',
             data: mockGenre
         });
     });
@@ -163,7 +163,7 @@ describe('Update genre controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Genre not found'
+            message: 'Genre not found.'
         }));
     });
 
@@ -191,7 +191,7 @@ describe('Delete genre controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Genre successfully deleted'
+            message: 'Genre successfully deleted.'
         });
     });
 
@@ -211,7 +211,7 @@ describe('Delete genre controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Genre not found'
+            message: 'Genre not found.'
         }));
     });
 

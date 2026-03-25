@@ -200,8 +200,6 @@ describe('Get sheet controller', () => {
         // ACT
         await getSheet(req, res, next);
 
-        // console.log(next.mock.calls);
-
         // ASSERT
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
