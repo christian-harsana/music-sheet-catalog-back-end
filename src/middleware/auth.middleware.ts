@@ -29,7 +29,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         const token = req.header('Authorization')?.replace('Bearer ', '');
 
         if (!token) {
-            throw new HttpError(401, 'Access denied. No token provided');
+            throw new HttpError(401, 'Access denied. No token provided.');
         }
         
         const decoded = jwt.verify(token, config.jwt.secret) as JwtUserPayload;

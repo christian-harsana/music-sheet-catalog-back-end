@@ -22,7 +22,7 @@ export const validationMiddleware = (schema: ZodType) => {
 
                 const userErrors = error.issues.filter(issue => issue.path[0] === 'user');
                 let errorHttpCode = userErrors.length > 0 ? 401 : 400;
-                let errorMessage = userErrors.length > 0 ? 'Authentication required or invalid user' : 'Validation error';
+                let errorMessage = userErrors.length > 0 ? 'Authentication required or invalid user.' : 'Validation error.';
 
                 return res.status(errorHttpCode).json({
                     success: false,

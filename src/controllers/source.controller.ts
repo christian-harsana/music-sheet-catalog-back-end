@@ -20,7 +20,7 @@ export const addSource = async (req: Request, res: Response, next: NextFunction)
         });
 
         if (existingSource) {
-            throw new HttpError(409, 'Source title already exists');
+            throw new HttpError(409, 'Source title already exists.');
         }
 
         // Save Source
@@ -34,7 +34,7 @@ export const addSource = async (req: Request, res: Response, next: NextFunction)
         // Return Success
         return res.status(201).json({
             success: true,
-            message: 'New source added successfully',
+            message: 'New source added successfully.',
             data: newSource[0]
         });
 
@@ -73,7 +73,7 @@ export const getSource = async (req: Request, res: Response, next: NextFunction)
 
         return res.status(200).json({
             success: true,
-            message: 'Sources data fetched successfully',
+            message: 'Sources data fetched successfully.',
             data: sources,
             pagination: {
                 currentPage: page,
@@ -107,7 +107,7 @@ export const getSourceLookup = async (req: Request, res: Response, next: NextFun
 
         return res.status(200).json({
             success: true,
-            message: 'Sources lookup data fetched successfully',
+            message: 'Sources lookup data fetched successfully.',
             data: sourceLookup,
         });
     }
@@ -139,12 +139,12 @@ export const updateSource = async (req: Request, res: Response, next: NextFuncti
             .returning();
 
         if (!updatedSource || updatedSource.length === 0) {
-            throw new HttpError(404, 'Source not found');
+            throw new HttpError(404, 'Source not found.');
         }
 
         return res.status(200).json({
             success: true,
-            message: 'Update is successful',
+            message: 'Update is successful.',
             data: updatedSource[0]
         });
     }
@@ -169,12 +169,12 @@ export const deleteSource = async (req: Request, res: Response, next:NextFunctio
             .returning();
 
         if (!deletedSource || deletedSource.length === 0) {
-            throw new HttpError(404, 'Source not found');
+            throw new HttpError(404, 'Source not found.');
         }
 
         return res.status(200).json({
             success: true,
-            message: 'Source successfully deleted'
+            message: 'Source successfully deleted.'
         });
 
     }

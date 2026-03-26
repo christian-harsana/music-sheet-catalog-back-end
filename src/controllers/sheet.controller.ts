@@ -29,7 +29,7 @@ export const addSheet = async (req: Request, res: Response, next: NextFunction) 
         // Return Success
         return res.status(201).json({
             success: true,
-            message: 'New sheet added successfully',
+            message: 'New sheet added successfully.',
             data: newSheet[0]
         });
 
@@ -123,7 +123,7 @@ export const getSheet = async (req: Request, res: Response, next: NextFunction) 
 
         return res.status(200).json({
             success: true,
-            message: 'Sheets data fetched successfully',
+            message: 'Sheets data fetched successfully.',
             data: sheets,
             pagination: {
                 currentPage: page,
@@ -167,12 +167,12 @@ export const updateSheet = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!updatedSheet || updatedSheet.length === 0) {
-            throw new HttpError(404, 'Sheet not found');
+            throw new HttpError(404, 'Sheet not found.');
         }
 
         return res.status(200).json({
             success: true,
-            message: 'Update is successful',
+            message: 'Update is successful.',
             data: updatedSheet[0]
         });
     }
@@ -197,12 +197,12 @@ export const deleteSheet = async (req: Request, res: Response, next: NextFunctio
             .returning();
 
         if (!deletedSheet || deletedSheet.length === 0) {
-            throw new HttpError(404, 'Sheet not found');
+            throw new HttpError(404, 'Sheet not found.');
         }
 
         return res.status(200).json({
             success: true,
-            message: 'Sheet successfully deleted'
+            message: 'Sheet successfully deleted.'
         });
 
     }
