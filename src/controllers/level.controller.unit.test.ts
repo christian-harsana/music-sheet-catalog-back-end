@@ -49,7 +49,7 @@ describe('Add level controller', () => {
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'New level added successfully',
+            message: 'New level added successfully.',
             data: mockLevel
         });
     });
@@ -66,7 +66,7 @@ describe('Add level controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 409,
-            message: 'Level name already exists'
+            message: 'Level name already exists.'
         }));
     });
 
@@ -95,7 +95,7 @@ describe('Get level controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'All levels fetched successfully',
+            message: 'All levels fetched successfully.',
             data: mockLevels
         });
     });
@@ -112,7 +112,7 @@ describe('Get level controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'All levels fetched successfully',
+            message: 'All levels fetched successfully.',
             data: []
         });
     });
@@ -142,7 +142,7 @@ describe('Update level controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Update is successful',
+            message: 'Update is successful.',
             data: mockLevel
         });
     });
@@ -164,7 +164,7 @@ describe('Update level controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Level not found'
+            message: 'Level not found.'
         }));
     });
 
@@ -192,7 +192,7 @@ describe('Delete level controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Level successfully deleted'
+            message: 'Level successfully deleted.'
         });
     });
 
@@ -212,7 +212,7 @@ describe('Delete level controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Level not found'
+            message: 'Level not found.'
         }));
     });
 

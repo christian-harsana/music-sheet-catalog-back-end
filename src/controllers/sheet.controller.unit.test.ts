@@ -67,7 +67,7 @@ describe('Add sheet controller', () => {
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'New sheet added successfully',
+            message: 'New sheet added successfully.',
             data: mockSheet
         });
     });
@@ -155,7 +155,7 @@ describe('Get sheet controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Sheets data fetched successfully',
+            message: 'Sheets data fetched successfully.',
             data: mockSheets,
             pagination: {
                 currentPage: 1,
@@ -204,7 +204,7 @@ describe('Get sheet controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Sheets data fetched successfully',
+            message: 'Sheets data fetched successfully.',
             data: [],
             pagination: {
                 currentPage: 1,
@@ -247,7 +247,7 @@ describe('Update sheet controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Update is successful',
+            message: 'Update is successful.',
             data: mockSheet
         });
     });
@@ -270,7 +270,7 @@ describe('Update sheet controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Sheet not found'
+            message: 'Sheet not found.'
         }));
     });
 
@@ -301,7 +301,7 @@ describe('Delete sheet controller', () => {
         expect(res.status). toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Sheet successfully deleted'
+            message: 'Sheet successfully deleted.'
         })
     });
 
@@ -321,7 +321,7 @@ describe('Delete sheet controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Sheet not found'
+            message: 'Sheet not found.'
         }));
 
     });

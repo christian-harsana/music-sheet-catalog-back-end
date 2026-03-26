@@ -21,7 +21,7 @@ export const addLevel = async (req: Request, res: Response, next: NextFunction) 
         });
     
         if (existingLevel) {
-            throw new HttpError(409, 'Level name already exists');
+            throw new HttpError(409, 'Level name already exists.');
         }
 
         // Save Level

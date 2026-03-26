@@ -92,7 +92,7 @@ describe('Get stat controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Stats sucessfully fetched',
+            message: 'Stats sucessfully fetched.',
             data: [
                 mockSheetsByLevel,
                 mockSheetsByGenre,

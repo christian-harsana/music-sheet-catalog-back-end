@@ -50,7 +50,7 @@ describe('Add source controller', () => {
         expect(res.status).toHaveBeenCalledWith(201);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'New source added successfully',
+            message: 'New source added successfully.',
             data: mockSource
         });
     });
@@ -67,7 +67,7 @@ describe('Add source controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 409,
-            message: 'Source title already exists'
+            message: 'Source title already exists.'
         }));
     });
 
@@ -101,7 +101,7 @@ describe('Get source controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Sources data fetched successfully',
+            message: 'Sources data fetched successfully.',
             data: mockSources,
             pagination: {
                 currentPage: 1,
@@ -132,7 +132,7 @@ describe('Get source controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Sources data fetched successfully',
+            message: 'Sources data fetched successfully.',
             data: [],
             pagination: {
                 currentPage: 1,
@@ -172,7 +172,7 @@ describe('Get source lookup controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Sources lookup data fetched successfully',
+            message: 'Sources lookup data fetched successfully.',
             data: mockSourceLookup
         })
     });
@@ -204,7 +204,7 @@ describe('Update source controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Update is successful',
+            message: 'Update is successful.',
             data: mockSource
         });
     });
@@ -226,7 +226,7 @@ describe('Update source controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Source not found'
+            message: 'Source not found.'
         }));
     });
 
@@ -254,7 +254,7 @@ describe('Delete source controller', () => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             success: true,
-            message: 'Source successfully deleted'
+            message: 'Source successfully deleted.'
         });
     });
 
@@ -274,7 +274,7 @@ describe('Delete source controller', () => {
         // ASSERT
         expect(next).toHaveBeenCalledWith(expect.objectContaining({
             statusCode: 404,
-            message: 'Source not found'
+            message: 'Source not found.'
         }));
     });
 
