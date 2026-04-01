@@ -2,8 +2,12 @@ import { Router } from 'express';
 import { addLevel, getLevel, updateLevel, deleteLevel } from '../controllers/level.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { validationMiddleware } from '../middleware/validation.middleware';
-import { createLevelSchema, getLevelSchema, updateLevelSchema, deleteLevelSchema } from '../models/validation/level.schema';
-
+import {
+	createLevelSchema,
+	getLevelSchema,
+	updateLevelSchema,
+	deleteLevelSchema,
+} from '../models/validation/level.schema';
 
 const router = Router();
 

@@ -5,126 +5,106 @@ import { genre } from '../models/database/genre.schema';
 import { HttpError } from '../errors';
 
 export const addGenre = async (req: Request, res: Response, next: NextFunction) => {
- 
-    try {
+	try {
+		const { name } = req.body;
+		const userId = req.user!.userId; // NOTE: safe to use ! because req user has been checked at the validation middleware
 
-        const { name } = req.body;
-        const userId = req.user!.userId; // NOTE: safe to use ! because req user has been checked at the validation middleware
+		// Validate - Check if submitted genre exists
+		const existingGenre = await db.query.genre.findFirst({
+			where: and(eq(genre.name, name), eq(genre.userId, userId)),
+		});
 
-        // Validate - Check if submitted genre exists
-        const existingGenre = await db.query.genre.findFirst({
-            where: and(
-                eq(genre.name, name),
-                eq(genre.userId, userId)
-            )
-        });
+		if (existingGenre) {
+			throw new HttpError(409, 'Genre name already exists');
+		}
 
-        if (existingGenre) {
-            throw new HttpError(409, 'Genre name already exists');
-        }
+		// Save Genre
+		const newGenre = await db
+			.insert(genre)
+			.values({
+				name: name?.trim(),
+				userId: userId,
+			})
+			.returning();
 
-        // Save Genre
-        const newGenre = await db.insert(genre).values({
-            name: name?.trim(),
-            userId: userId
-        }).returning();
-
-        // Return Success
-        return res.status(201).json({
-            success: true,
-            message: 'New genre added successfully.',
-            data: newGenre[0]
-        });
-
-    }
-    catch (error: unknown) {
-        next(error);
-    }
+		// Return Success
+		return res.status(201).json({
+			success: true,
+			message: 'New genre added successfully.',
+			data: newGenre[0],
+		});
+	} catch (error: unknown) {
+		next(error);
+	}
 };
-
 
 export const getGenre = async (req: Request, res: Response, next: NextFunction) => {
+	// Get all genres
+	try {
+		const userId = req.user!.userId;
 
-    // Get all genres
-    try {
+		const genres = await db.query.genre.findMany({
+			where: eq(genre.userId, userId),
+			orderBy: asc(genre.id),
+		});
 
-        const userId = req.user!.userId;
-
-        const genres = await db.query.genre.findMany({
-            where: eq(genre.userId, userId),
-            orderBy: asc(genre.id)
-        });
-
-        return res.status(200).json({
-            success: true,
-            message: 'All genres fetched successfully.',
-            data: genres
-        });
-    }
-    catch (error: unknown) {
-        next(error);
-    }
+		return res.status(200).json({
+			success: true,
+			message: 'All genres fetched successfully.',
+			data: genres,
+		});
+	} catch (error: unknown) {
+		next(error);
+	}
 };
-
 
 export const updateGenre = async (req: Request, res: Response, next: NextFunction) => {
-    
-    try {
+	try {
+		// Get parameter and input and validate inputs
+		const { id } = req.params;
+		const { name } = req.body;
+		const userId = req.user!.userId;
 
-        // Get parameter and input and validate inputs
-        const { id } = req.params;
-        const { name } = req.body;
-        const userId = req.user!.userId;
+		// Update the data
+		const updatedGenre = await db
+			.update(genre)
+			.set({ name: name.trim() })
+			.where(and(eq(genre.id, parseInt(id)), eq(genre.userId, userId)))
+			.returning();
 
-        // Update the data
-        const updatedGenre = await db.update(genre)
-            .set({ name: name.trim() })
-            .where(and(
-                eq(genre.id, parseInt(id)),
-                eq(genre.userId, userId)
-            ))
-            .returning();
+		if (!updatedGenre || updatedGenre.length === 0) {
+			throw new HttpError(404, 'Genre not found.');
+		}
 
-        if (!updatedGenre || updatedGenre.length === 0) {
-            throw new HttpError(404, 'Genre not found.');
-        }
-
-        return res.status(200).json({
-            success: true,
-            message: 'Update is successful.',
-            data: updatedGenre[0]
-        });
-    }
-    catch (error: unknown) {
-        next(error);
-    }
+		return res.status(200).json({
+			success: true,
+			message: 'Update is successful.',
+			data: updatedGenre[0],
+		});
+	} catch (error: unknown) {
+		next(error);
+	}
 };
 
-
 export const deleteGenre = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { id } = req.params;
+		const userId = req.user!.userId;
 
-    try {
-        const { id } = req.params;
-        const userId = req.user!.userId;
+		const deletedGenre = await db
+			.delete(genre)
+			.where(and(eq(genre.id, parseInt(id)), eq(genre.userId, userId)))
+			.returning();
 
-        const deletedGenre = await db.delete(genre)
-            .where(and (
-                eq(genre.id, parseInt(id)),
-                eq(genre.userId, userId)
-            ))
-            .returning();
+		if (!deletedGenre || deletedGenre.length === 0) {
+			throw new HttpError(404, 'Genre not found.');
+		}
 
-        if (!deletedGenre || deletedGenre.length === 0) {
-            throw new HttpError(404, 'Genre not found.');
-        }
-
-        return res.status(200).json({
-            success: true,
-            message: 'Genre successfully deleted.'
-        });
-
-    }
-    catch(error: unknown) {
-        next(error);
-    }
-}
+		return res.status(200).json({
+			success: true,
+			message: 'Genre successfully deleted.',
+		});
+	} catch (error: unknown) {
+		next(error);
+	}
+};

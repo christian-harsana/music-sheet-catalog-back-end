@@ -2,7 +2,12 @@ import { Router } from 'express';
 import { addGenre, getGenre, updateGenre, deleteGenre } from '../controllers/genre.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { validationMiddleware } from '../middleware/validation.middleware';
-import { createGenreSchema, getGenreSchema, updateGenreSchema, deleteGenreSchema } from '../models/validation/genre.schema';
+import {
+	createGenreSchema,
+	getGenreSchema,
+	updateGenreSchema,
+	deleteGenreSchema,
+} from '../models/validation/genre.schema';
 
 const router = Router();
 

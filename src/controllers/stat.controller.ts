@@ -7,95 +7,99 @@ import { genre } from '../models/database/genre.schema';
 import { source } from '../models/database/source.schema';
 
 export const getStats = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const userId = req.user!.userId;
 
-    try {
-        const userId = req.user!.userId;
+		const [
+			sheetsByLevel,
+			sheetsByGenre,
+			sheetsWithMissingData,
+			sheetsTotal,
+			sourcesTotal,
+			levelsTotal,
+			genresTotal,
+		] = await Promise.all([
+			db
+				.select({
+					levelId: sheet.levelId,
+					levelName: level.name,
+					count: count(sheet.id),
+				})
+				.from(sheet)
+				.leftJoin(level, eq(sheet.levelId, level.id))
+				.where(eq(sheet.userId, userId))
+				.groupBy(sheet.levelId, level.name)
+				.orderBy(sheet.levelId),
+			db
+				.select({
+					genreId: sheet.genreId,
+					genreName: genre.name,
+					count: count(sheet.id),
+				})
+				.from(sheet)
+				.leftJoin(genre, eq(sheet.genreId, genre.id))
+				.where(eq(sheet.userId, userId))
+				.groupBy(sheet.genreId, genre.name)
+				.orderBy(genre.name),
+			db
+				.select({
+					count: count(sheet.id),
+				})
+				.from(sheet)
+				.where(
+					and(
+						eq(sheet.userId, userId),
+						or(
+							isNull(sheet.sourceId),
+							isNull(sheet.levelId),
+							isNull(sheet.genreId),
+							isNull(sheet.key),
+							eq(sheet.key, ''),
+							isNull(sheet.composer),
+							eq(sheet.composer, ''),
+						),
+					),
+				),
+			db
+				.select({
+					count: count(sheet.id),
+				})
+				.from(sheet)
+				.where(eq(sheet.userId, userId)),
+			db
+				.select({
+					count: count(source.id),
+				})
+				.from(source)
+				.where(eq(source.userId, userId)),
+			db
+				.select({
+					count: count(level.id),
+				})
+				.from(level)
+				.where(eq(level.userId, userId)),
+			db
+				.select({
+					count: count(genre.id),
+				})
+				.from(genre)
+				.where(eq(genre.userId, userId)),
+		]);
 
-        const [
-            sheetsByLevel, 
-            sheetsByGenre, 
-            sheetsWithMissingData, 
-            sheetsTotal,
-            sourcesTotal, 
-            levelsTotal, 
-            genresTotal] = await Promise.all([
-
-            db.select({
-                    levelId: sheet.levelId,
-                    levelName: level.name,
-                    count: count(sheet.id)
-                })
-                .from(sheet)
-                .leftJoin(level, eq(sheet.levelId, level.id))
-                .where(eq(sheet.userId, userId))
-                .groupBy(sheet.levelId, level.name)
-                .orderBy(sheet.levelId),
-            db.select({
-                    genreId: sheet.genreId,
-                    genreName: genre.name,
-                    count: count(sheet.id)
-                })
-                .from(sheet)
-                .leftJoin(genre, eq(sheet.genreId, genre.id))
-                .where(eq(sheet.userId, userId))
-                .groupBy(sheet.genreId, genre.name)
-                .orderBy(genre.name),
-            db.select({
-                    count: count(sheet.id)
-                })
-                .from(sheet)
-                .where(
-                    and (
-                        eq(sheet.userId, userId),
-                        or(
-                            isNull(sheet.sourceId),
-                            isNull(sheet.levelId),
-                            isNull(sheet.genreId),
-                            isNull(sheet.key),
-                            eq(sheet.key, ""),
-                            isNull(sheet.composer),
-                            eq(sheet.composer, "")
-                        )
-                    )
-                ),
-            db.select({
-                    count: count(sheet.id)
-                })
-                .from(sheet)
-                .where(eq(sheet.userId, userId)),
-            db.select({
-                    count: count(source.id)
-                })
-                .from(source)
-                .where(eq(source.userId, userId)),
-            db.select({
-                    count: count(level.id)
-                })
-                .from(level)
-                .where(eq(level.userId, userId)),
-            db.select({
-                    count: count(genre.id)
-                })
-                .from(genre)
-                .where(eq(genre.userId, userId)),
-        ]);
-
-        return res.status(200).json({
-            success: true,
-            message: 'Stats sucessfully fetched.',
-            data: [
-                sheetsByLevel, 
-                sheetsByGenre, 
-                sheetsWithMissingData, 
-                sheetsTotal, 
-                sourcesTotal, 
-                levelsTotal, 
-                genresTotal
-            ]
-        });
-    }
-
-    catch (error: unknown) {
-        next(error);
-    }
+		return res.status(200).json({
+			success: true,
+			message: 'Stats sucessfully fetched.',
+			data: [
+				sheetsByLevel,
+				sheetsByGenre,
+				sheetsWithMissingData,
+				sheetsTotal,
+				sourcesTotal,
+				levelsTotal,
+				genresTotal,
+			],
+		});
+	} catch (error: unknown) {
+		next(error);
+	}
 };

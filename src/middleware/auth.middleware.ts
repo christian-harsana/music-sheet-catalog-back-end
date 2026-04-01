@@ -1,46 +1,26 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { config } from "../config/index";
-import { HttpError } from "../errors";
-
-
-// Extend Express Request type to include user
-interface JwtUserPayload {
-    userId: number;
-    email: string;
-    iat?: number;
-    exp?: number;
-}
-
-declare global {
-    namespace Express {
-        interface Request {
-            user?: JwtUserPayload;
-        }
-    }
-}
-
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { config } from '../config/index';
+import { HttpError } from '../errors';
+import { JwtUserPayload } from '../types/express';
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+	try {
+		// Verify token
+		const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    try {
+		if (!token) {
+			throw new HttpError(401, 'Access denied. No token provided.');
+		}
 
-        // Verify token
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+		const decoded = jwt.verify(token, config.jwt.secret) as JwtUserPayload;
 
-        if (!token) {
-            throw new HttpError(401, 'Access denied. No token provided.');
-        }
-        
-        const decoded = jwt.verify(token, config.jwt.secret) as JwtUserPayload;
+		// Attach req.user
+		req.user = decoded;
 
-        // Attach req.user
-        req.user = decoded;
-
-        // Continue to the next middleware / route handler
-        next();
-    }
-    catch(error) {
-        next(error);
-    }
-}
+		// Continue to the next middleware / route handler
+		next();
+	} catch (error) {
+		next(error);
+	}
+};
