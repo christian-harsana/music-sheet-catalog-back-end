@@ -4,178 +4,150 @@ import { createTestUserAndGetToken } from '../helpers/auth.helper';
 import { deleteTestUser, closeDbConnection } from '../helpers/db.helper';
 import { db } from '../../src/config/db';
 import { sheet } from '../../src/models/database/sheet.schema';
+import { sheetResponse } from '../../src/types/sheet';
 import { eq } from 'drizzle-orm';
 
 describe('Sheet API', () => {
+	let token: string;
+	let sheetId: number;
 
-    let token: string;
-    let sheetId: number;
+	beforeAll(async () => {
+		token = await createTestUserAndGetToken();
+	});
 
-    beforeAll(async () => {
-        token = await createTestUserAndGetToken();
-    });
+	afterAll(async () => {
+		// For deleting the created sheet when delete test failed
+		if (sheetId) {
+			await db.delete(sheet).where(eq(sheet.id, sheetId));
+		}
 
-    afterAll(async () => {
+		await deleteTestUser();
+		await closeDbConnection();
+	});
 
-        // For deleting the created sheet when delete test failed
-        if (sheetId) {
-            await db.delete(sheet).where(eq(sheet.id, sheetId));
-        }
+	describe('POST /sheet', () => {
+		it('should return 401 when no token is provided', async () => {
+			const res = await request(app).post('/api/sheet').send({ title: 'Test sheet' });
 
-        await deleteTestUser();
-        await closeDbConnection();
-    });
+			expect(res.status).toBe(401);
+			expect(res.body).toHaveProperty('success', false);
+			expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
+		});
 
-    describe('POST /sheet', () => {
+		it('should return 400 when title is missing', async () => {
+			const res = await request(app)
+				.post('/api/sheet')
+				.set('Authorization', `Bearer ${token}`)
+				.send({});
 
-        it('should return 401 when no token is provided', async() => {
+			expect(res.status).toBe(400);
+			expect(res.body).toHaveProperty('success', false);
+			expect(res.body).toHaveProperty('message', 'Validation error.');
+		});
 
-            const res = await request(app)
-                .post('/api/sheet')
-                .send({title: 'Test sheet'});
-            
-            expect(res.status).toBe(401);
-            expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
-        });
+		it('should return 201 when adding new sheet successfully', async () => {
+			const res = await request(app)
+				.post('/api/sheet')
+				.set('Authorization', `Bearer ${token}`)
+				.send({ title: 'Test sheet' });
 
-        it('should return 400 when title is missing', async() => {
+			expect(res.status).toBe(201);
+			expect(res.body).toHaveProperty('success', true);
+			expect(res.body).toHaveProperty('message', 'New sheet added successfully.');
+			expect(res.body).toHaveProperty('data.id');
+			expect(res.body).toHaveProperty('data.title', 'Test sheet');
 
-            const res = await request(app)
-                .post('/api/sheet')
-                .set('Authorization', `Bearer ${token}`)
-                .send({});
-            
-            expect(res.status).toBe(400);
-            expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Validation error.');
-        });
+			sheetId = res.body.data.id;
+		});
+	});
 
-        it('should return 201 when adding new sheet successfully', async() => {
+	describe('GET /sheet', () => {
+		it('should return 401 when no token is provided', async () => {
+			const res = await request(app).get('/api/sheet');
 
-            const res = await request(app)
-                .post('/api/sheet')
-                .set('Authorization', `Bearer ${token}`)
-                .send({title: 'Test sheet'});
-            
-            expect(res.status).toBe(201);
-            expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'New sheet added successfully.');
-            expect(res.body).toHaveProperty('data.id');
-            expect(res.body).toHaveProperty('data.title', 'Test sheet');
+			expect(res.status).toBe(401);
+			expect(res.body).toHaveProperty('success', false);
+			expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
+		});
 
-            sheetId = res.body.data.id;
-        });
+		it('should return 200 and return sheet data', async () => {
+			const res = await request(app).get('/api/sheet').set('Authorization', `Bearer ${token}`);
 
-    });
+			const createdsheet = res.body.data.find((sheet: sheetResponse) => sheet.id === sheetId);
 
-    describe('GET /sheet', () => {
+			expect(res.status).toBe(200);
+			expect(res.body).toHaveProperty('success', true);
+			expect(res.body).toHaveProperty('message', 'Sheets data fetched successfully.');
+			expect(res.body).toHaveProperty('data');
+			expect(res.body).toHaveProperty('pagination');
+			expect(createdsheet).toBeDefined();
+			expect(createdsheet.title).toBe('Test sheet');
+		});
+	});
 
-        it('should return 401 when no token is provided', async() => {
+	describe('PUT /sheet', () => {
+		it('should return 401 when no token is provided', async () => {
+			const res = await request(app).put(`/api/sheet/${sheetId}`).send({ title: 'Updated sheet' });
 
-            const res = await request(app)
-                .get('/api/sheet');
-            
-            expect(res.status).toBe(401);
-            expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
-        });
+			expect(res.status).toBe(401);
+			expect(res.body).toHaveProperty('success', false);
+			expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
+		});
 
-        it('should return 200 and return sheet data', async() => {
+		it('should return 404 when sheet does not exist', async () => {
+			const res = await request(app)
+				.delete(`/api/sheet/9999`)
+				.set('Authorization', `Bearer ${token}`)
+				.send({ title: 'Updated sheet' });
 
-            const res = await request(app)
-                .get('/api/sheet')
-                .set('Authorization', `Bearer ${token}`);
+			expect(res.status).toBe(404);
+			expect(res.body).toHaveProperty('success', false);
+			expect(res.body).toHaveProperty('message', 'Sheet not found.');
+		});
 
-            const createdsheet = res.body.data.find((sheet: any) => sheet.id === sheetId);
+		it('should return 200 and update a sheet', async () => {
+			const res = await request(app)
+				.put(`/api/sheet/${sheetId}`)
+				.set('Authorization', `Bearer ${token}`)
+				.send({ title: 'Updated sheet' });
 
-            expect(res.status).toBe(200);
-            expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'Sheets data fetched successfully.');
-            expect(res.body).toHaveProperty('data');
-            expect(res.body).toHaveProperty('pagination');
-            expect(createdsheet).toBeDefined();
-            expect(createdsheet.title).toBe('Test sheet');
-        });
+			expect(res.status).toBe(200);
+			expect(res.body).toHaveProperty('success', true);
+			expect(res.body).toHaveProperty('message', 'Update is successful.');
+			expect(res.body).toHaveProperty('data.title', 'Updated sheet');
+		});
+	});
 
-    });
+	describe('DELETE /sheet', () => {
+		it('should return 401 when no token is provided', async () => {
+			const res = await request(app).delete(`/api/sheet/${sheetId}`);
 
+			expect(res.status).toBe(401);
+			expect(res.body).toHaveProperty('success', false);
+			expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
+		});
 
-    describe('PUT /sheet', () => {
+		it('should return 404 when sheet does not exist', async () => {
+			const res = await request(app)
+				.delete(`/api/sheet/9999`)
+				.set('Authorization', `Bearer ${token}`);
 
-        it('should return 401 when no token is provided', async() => {
+			expect(res.status).toBe(404);
+			expect(res.body).toHaveProperty('success', false);
+			expect(res.body).toHaveProperty('message', 'Sheet not found.');
+		});
 
-            const res = await request(app)
-                .put(`/api/sheet/${sheetId}`)
-                .send({title: 'Updated sheet'});
-            
-            expect(res.status).toBe(401);
-            expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
-        });
+		it('should return 200 and delete a sheet', async () => {
+			const res = await request(app)
+				.delete(`/api/sheet/${sheetId}`)
+				.set('Authorization', `Bearer ${token}`);
 
-        it('should return 404 when sheet does not exist', async () => {
-             const res = await request(app)
-                .delete(`/api/sheet/9999`)
-                .set('Authorization', `Bearer ${token}`)
-                .send({title: 'Updated sheet'});
-            
-            expect(res.status).toBe(404);
-            expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Sheet not found.');
-        });
+			expect(res.status).toBe(200);
+			expect(res.body).toHaveProperty('success', true);
+			expect(res.body).toHaveProperty('message', 'Sheet successfully deleted.');
 
-        it('should return 200 and update a sheet', async() => {
-
-            const res = await request(app)
-                    .put(`/api/sheet/${sheetId}`)
-                    .set('Authorization', `Bearer ${token}`)
-                    .send({title: 'Updated sheet'});
-
-            expect(res.status).toBe(200);
-            expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'Update is successful.');
-            expect(res.body).toHaveProperty('data.title', 'Updated sheet');
-        });
-    });
-
-
-    describe('DELETE /sheet', () => {
-
-        it('should return 401 when no token is provided', async() => {
-
-            const res = await request(app)
-                .delete(`/api/sheet/${sheetId}`);
-            
-            expect(res.status).toBe(401);
-            expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Access denied. No token provided.');
-        });
-
-        it('should return 404 when sheet does not exist', async () => {
-             const res = await request(app)
-                .delete(`/api/sheet/9999`)
-                .set('Authorization', `Bearer ${token}`);
-            
-            expect(res.status).toBe(404);
-            expect(res.body).toHaveProperty('success', false);
-            expect(res.body).toHaveProperty('message', 'Sheet not found.');
-        });
-
-        it('should return 200 and delete a sheet', async() => {
-
-            const res = await request(app)
-                    .delete(`/api/sheet/${sheetId}`)
-                    .set('Authorization', `Bearer ${token}`);
-
-            expect(res.status).toBe(200);
-            expect(res.body).toHaveProperty('success', true);
-            expect(res.body).toHaveProperty('message', 'Sheet successfully deleted.');
-        
-            // Reset - So Afterall cleanup skip it
-            sheetId = 0;
-        });
-    }) 
-
+			// Reset - So Afterall cleanup skip it
+			sheetId = 0;
+		});
+	});
 });
-

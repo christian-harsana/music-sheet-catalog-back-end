@@ -14,195 +14,200 @@ const mockedBcrypt = jest.mocked(bcrypt);
 const mockedJwt = jest.mocked(jwt);
 
 const mockUser = {
-        id: 1,
-        email: 'test@test.com',
-        name: 'tester',
-        password: 'hashedPassword',
-        createdAt: new Date('2026-01-01')
-    }
+	id: 1,
+	email: 'test@test.com',
+	name: 'tester',
+	password: 'hashedPassword',
+	createdAt: new Date('2026-01-01'),
+};
 
 let req: Request;
 let res: Response;
 let next: jest.Mock;
 
 beforeEach(() => {
-    // Reset mocks between tests
-    jest.resetAllMocks();
+	// Reset mocks between tests
+	jest.resetAllMocks();
 
-    // Define repeated values
-    res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
-    next = jest.fn();
+	// Define repeated values
+	res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
+	next = jest.fn();
 });
 
 describe('SignUp controller', () => {
-    
-    test('Return 201 when user successfully registered', async () => {
+	test('Return 201 when user successfully registered', async () => {
+		// ARRANGE
+		req = {
+			body: { email: 'user@test.app', password: 'testPassword123', name: 'Tester' },
+		} as Request;
+		mockedDb.query.appUser.findFirst.mockResolvedValue(undefined);
+		(mockedBcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword'); // NOTE: 'as jest.Mock' is necessary due to bcrypt.hash has more than 1 signatures which return different type
+		(mockedDb.insert as jest.Mock).mockReturnValue({
+			values: jest.fn().mockReturnValue({
+				returning: jest.fn().mockResolvedValue([
+					{
+						id: 1,
+						email: 'test@test.com',
+						createdAt: new Date(),
+					},
+				]),
+			}),
+		});
 
-        // ARRANGE
-        req = { body: { email: 'user@test.app', password: 'testPassword123', name: 'Tester' }} as Request;
-        mockedDb.query.appUser.findFirst.mockResolvedValue(undefined);
-        (mockedBcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword'); // NOTE: 'as jest.Mock' is necessary due to bcrypt.hash has more than 1 signatures which return different type
-        (mockedDb.insert as jest.Mock).mockReturnValue({
-            values: jest.fn().mockReturnValue({
-                returning: jest.fn().mockResolvedValue([{
-                    id: 1, 
-                    email: 'test@test.com',
-                    createdAt: new Date() 
-                }])
-            })    
-        });
+		// ACT
+		await signUp(req, res, next);
 
+		// ASSERT
+		expect(res.status).toHaveBeenCalledWith(201);
+		expect(res.json).toHaveBeenCalledWith({
+			success: true,
+			message: 'User registered successfully',
+		});
+	});
 
-        // ACT
-        await signUp(req, res, next);
+	test('Return 409 when user already exist when signing up', async () => {
+		// ARRANGE
+		req = {
+			body: { email: 'test@test.com', password: 'testPassword123', name: 'Tester' },
+		} as Request;
+		mockedDb.query.appUser.findFirst.mockResolvedValue({
+			id: 1,
+			email: 'test@test.com',
+			name: 'test',
+			password: '1234567',
+			createdAt: new Date('2026-01-01'),
+		});
 
-        // ASSERT
-        expect(res.status).toHaveBeenCalledWith(201);
-        expect(res.json).toHaveBeenCalledWith({
-            success: true,
-            message: 'User registered successfully'
-        });
-    });
+		// ACT
+		await signUp(req, res, next);
 
-    test('Return 409 when user already exist when signing up', async () => {
+		// ASSERT
+		expect(next).toHaveBeenCalledWith(
+			expect.objectContaining({
+				statusCode: 409,
+				message: 'User already exists',
+			}),
+		);
+	});
 
-        // ARRANGE
-        req = { body: { email: 'test@test.com', password: 'testPassword123', name: 'Tester' }} as Request;
-        mockedDb.query.appUser.findFirst.mockResolvedValue({id: 1, email: 'test@test.com', name: 'test', password: '1234567', createdAt: new Date('2026-01-01') });
+	test('Calls next with error when db query fails', async () => {
+		// ARRANGE
+		req = {
+			body: { email: 'test@test.com', password: 'testPassword123', name: 'Tester' },
+		} as Request;
+		mockedDb.query.appUser.findFirst.mockRejectedValue(new Error('Database connection failed'));
 
-        // ACT
-        await signUp(req, res, next);
+		// ACT
+		await signUp(req, res, next);
 
-        // ASSERT
-        expect(next).toHaveBeenCalledWith(expect.objectContaining({
-            statusCode: 409,
-            message: 'User already exists'
-        }));
-    });
-
-    test('Calls next with error when db query fails', async () => {
-        
-        // ARRANGE
-        req = { body: { email: 'test@test.com', password: 'testPassword123', name: 'Tester' }} as Request;
-        mockedDb.query.appUser.findFirst.mockRejectedValue(new Error('Database connection failed'));
-        
-        // ACT
-        await signUp(req, res, next);
-
-        // ASSERT
-        expect(next).toHaveBeenCalledWith(expect.any(Error));
-    });
+		// ASSERT
+		expect(next).toHaveBeenCalledWith(expect.any(Error));
+	});
 });
-
 
 describe('Login controller', () => {
+	test('Return 200 when login is successful', async () => {
+		// ARRANGE
+		req = { body: { email: 'test@test.com', password: 'testPassword123' } } as Request;
+		mockedDb.query.appUser.findFirst.mockResolvedValue(mockUser);
+		(mockedBcrypt.compare as jest.Mock).mockResolvedValue(true); // Mock Bcrypt (password) compare to return true
+		(mockedJwt.sign as jest.Mock).mockReturnValue('mockedJWTToken');
 
-    test('Return 200 when login is successful', async () => {
+		// ACT
+		await login(req, res, next);
 
-        // ARRANGE
-        req = { body: { email: 'test@test.com', password: 'testPassword123' }} as Request;
-        mockedDb.query.appUser.findFirst.mockResolvedValue(mockUser);
-        (mockedBcrypt.compare as jest.Mock).mockResolvedValue(true); // Mock Bcrypt (password) compare to return true
-        (mockedJwt.sign as jest.Mock).mockReturnValue('mockedJWTToken')
+		// ASSERT
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.json).toHaveBeenCalledWith({
+			success: true,
+			message: 'Login successful',
+			data: {
+				userId: mockUser.id,
+				email: mockUser.email,
+				name: mockUser.name,
+				token: 'mockedJWTToken',
+			},
+		});
+	});
 
-        // ACT
-        await login(req, res, next);
+	test('Return 401 when email is invalid', async () => {
+		// ARRANGE
+		req = { body: { email: 'test@test.com', password: 'testPassword123' } } as Request;
+		mockedDb.query.appUser.findFirst.mockResolvedValue(undefined);
 
-        // ASSERT
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            success: true,
-            message: 'Login successful',
-            data: {
-                userId: mockUser.id,
-                email: mockUser.email,
-                name: mockUser.name,
-                token: 'mockedJWTToken'
-            }
-        });
-    });
+		// ACT
+		await login(req, res, next);
 
-    test('Return 401 when email is invalid', async () => {
+		// ASSERT
+		expect(next).toHaveBeenCalledWith(
+			expect.objectContaining({
+				statusCode: 401,
+				message: 'Invalid email or password',
+			}),
+		);
+	});
 
-        // ARRANGE
-        req = { body: { email: 'test@test.com', password: 'testPassword123' }} as Request;
-        mockedDb.query.appUser.findFirst.mockResolvedValue(undefined);
-       
-        // ACT
-        await login(req, res, next);
+	test('Return 401 when password is invalid', async () => {
+		// ARRANGE
+		req = { body: { email: 'test@test.com', password: 'testPassword123' } } as Request;
+		mockedDb.query.appUser.findFirst.mockResolvedValue(mockUser);
+		(mockedBcrypt.compare as jest.Mock).mockResolvedValue(false); // Mock Bcrypt compare to return false
 
-        // ASSERT
-        expect(next).toHaveBeenCalledWith(expect.objectContaining({
-            statusCode: 401,
-            message: 'Invalid email or password'
-        }));
-    });
+		// ACT
+		await login(req, res, next);
 
-    test('Return 401 when password is invalid', async () => {
-
-        // ARRANGE
-        req = { body: { email: 'test@test.com', password: 'testPassword123' }} as Request;
-        mockedDb.query.appUser.findFirst.mockResolvedValue(mockUser);
-        (mockedBcrypt.compare as jest.Mock).mockResolvedValue(false); // Mock Bcrypt compare to return false
-
-        // ACT
-        await login(req, res, next);
-
-        // ASSERT
-        expect(next).toHaveBeenCalledWith(expect.objectContaining({
-            statusCode: 401,
-            message: 'Invalid email or password'
-        }));
-    });
-
+		// ASSERT
+		expect(next).toHaveBeenCalledWith(
+			expect.objectContaining({
+				statusCode: 401,
+				message: 'Invalid email or password',
+			}),
+		);
+	});
 });
 
-
 describe('Verify token controller', () => {
+	test('Return 200 when token verification is successful', async () => {
+		// ARRANGE
+		(mockedJwt.verify as jest.Mock).mockReturnValue({
+			userId: 1,
+			email: 'test@test.com',
+		});
+		mockedDb.query.appUser.findFirst.mockResolvedValue(mockUser);
 
-    test('Return 200 when token verification is successful', async () => {
+		// ACT
+		await verifyToken(req, res, next);
 
-        // ARRANGE
-        (mockedJwt.verify as jest.Mock).mockReturnValue({ 
-            userId: 1, 
-            email: 'test@test.com' 
-        });
-        mockedDb.query.appUser.findFirst.mockResolvedValue(mockUser);
+		// ASSERT
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.json).toHaveBeenCalledWith({
+			success: true,
+			message: 'Verification successful',
+			data: {
+				userId: mockUser.id,
+				email: mockUser.email,
+				name: mockUser.name,
+			},
+		});
+	});
 
-        // ACT
-        await verifyToken(req, res, next);
+	test('Return 404 when user is not found', async () => {
+		// ARRANGE
+		(mockedJwt.verify as jest.Mock).mockReturnValue({
+			userId: 1,
+			email: 'test@test.com',
+		});
+		mockedDb.query.appUser.findFirst.mockResolvedValue(undefined);
 
-        // ASSERT
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            success: true,
-            message: 'Verification successful',
-            data: {
-                userId: mockUser.id,
-                email: mockUser.email,
-                name: mockUser.name
-            }
-        });
-    });
+		// ACT
+		await verifyToken(req, res, next);
 
-
-    test('Return 404 when user is not found', async () => {
-
-        // ARRANGE
-        (mockedJwt.verify as jest.Mock).mockReturnValue({ 
-            userId: 1, 
-            email: 'test@test.com' 
-        });
-        mockedDb.query.appUser.findFirst.mockResolvedValue(undefined);
-
-        // ACT
-        await verifyToken(req, res, next);
-
-        // ASSERT
-        expect(next).toHaveBeenCalledWith(expect.objectContaining({
-            statusCode: 404,
-            message: 'User not found'
-        }));
-    });
-
+		// ASSERT
+		expect(next).toHaveBeenCalledWith(
+			expect.objectContaining({
+				statusCode: 404,
+				message: 'User not found',
+			}),
+		);
+	});
 });
