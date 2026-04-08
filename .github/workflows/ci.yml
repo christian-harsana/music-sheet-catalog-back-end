@@ -33,7 +33,7 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        run: npm run test -- --watchAll=false --passWithNoTests
+        run: npm run test:all -- --watchAll=false --passWithNoTests
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
