@@ -120,7 +120,7 @@ describe('Login controller', () => {
 		expect(res.status).toHaveBeenCalledWith(200);
 		expect(res.json).toHaveBeenCalledWith({
 			success: true,
-			message: 'Login successful test',
+			message: 'Login successful',
 			data: {
 				userId: mockUser.id,
 				email: mockUser.email,
