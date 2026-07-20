@@ -58,6 +58,29 @@ export const getLevel = async (req: Request, res: Response, next: NextFunction) 
 	}
 };
 
+
+export const getLevelLookup = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const userId = req.user!.userId;
+
+		const levels = await db.select({
+			id: level.id,
+			name: level.name
+		})
+		.from(level)
+		.where(eq(level.userId, userId))
+		.orderBy(asc(level.name));
+
+		return res.status(200).json({
+			success: true,
+			message: 'All levels fetched successfully.',
+			data: levels,
+		});
+	} catch (error: unknown) {
+		next(error);
+	}
+};
+
 export const updateLevel = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		// Get parameter and input and validate inputs

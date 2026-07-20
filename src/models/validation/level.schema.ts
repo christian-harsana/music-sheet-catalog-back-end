@@ -15,6 +15,12 @@ export const getLevelSchema = z.object({
 	}),
 });
 
+export const getLevelLookupSchema = z.object({
+	user: z.object({
+		userId: z.number().int('User Id must be an integer').positive('User Id must be positive'),
+	}),
+});
+
 export const updateLevelSchema = z.object({
 	params: z.object({
 		id: z.string().trim().min(1, 'Level Id is required'),
